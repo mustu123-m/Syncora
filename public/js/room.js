@@ -43,14 +43,16 @@ peer.on('open', id => {
   if (isHost) {
     document.getElementById('meeting-ui').style.display = 'block';
     document.getElementById('waiting-room').style.display = 'none';
-    socket.emit('join-room', ROOM_ID, peer.id, my_username);
+      socket.emit('host-ready', ROOM_ID, peer.id, my_username); // Changed from 'join-room'
   } else {
     document.getElementById('meeting-ui').style.display = 'none';
     document.getElementById('waiting-room').style.display = 'block';
     socket.emit('request-join', ROOM_ID, peer.id, my_username, isHost, requireApproval);
   }
   socket.on('join-request', ({ userId, userName }) => {
+    if(isHost){
     showJoinRequestPopup(userId, userName);
+    }
   });
 
   socket.on('existing-users', users => {
