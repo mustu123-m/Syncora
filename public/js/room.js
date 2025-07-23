@@ -39,12 +39,16 @@ const socket = io(window.location.origin, {
   path: '/socket.io',
   transports: ['websocket']
 });
-
-
-  document.getElementById('meeting-ui').style.display = 'none';
-  document.getElementById('waiting-room').style.display = 'block';
-
-  socket.emit('request-join', ROOM_ID, peer.id, my_username, isHost, requireApproval);
+  // Immediate host handling
+  if (isHost) {
+    document.getElementById('meeting-ui').style.display = 'block';
+    document.getElementById('waiting-room').style.display = 'none';
+    socket.emit('join-room', ROOM_ID, peer.id, my_username);
+  } else {
+    document.getElementById('meeting-ui').style.display = 'none';
+    document.getElementById('waiting-room').style.display = 'block';
+    socket.emit('request-join', ROOM_ID, peer.id, my_username, isHost, requireApproval);
+  }
   socket.on('join-request', ({ userId, userName }) => {
     showJoinRequestPopup(userId, userName);
   });
