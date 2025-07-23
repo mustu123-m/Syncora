@@ -245,23 +245,40 @@ function removeUserFromList(userId) {
 }
 
 function showJoinRequestPopup(userId, userName) {
+  // First ensure host controls are visible
+  document.getElementById('host-controls').style.display = 'block';
+  
+  // Remove any existing modal
+  const existingModal = document.querySelector('.join-request-modal');
+  if (existingModal) existingModal.remove();
+
   const modal = document.createElement('div');
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-  modal.innerHTML =
-    `<div class="bg-white p-6 rounded shadow-lg text-center">
+  modal.className = 'join-request-modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+  modal.innerHTML = `
+    <div class="bg-white p-6 rounded shadow-lg text-center">
       <p class="text-lg font-semibold mb-4">👤 ${userName} wants to join</p>
-      <button id="allow-btn" class="bg-blue-500 text-white px-4 py-2 rounded mr-2">Allow</button>
-      <button id="deny-btn" class="bg-gray-400 text-white px-4 py-2 rounded">Deny</button>
+      <div class="flex justify-center">
+        <button id="allow-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mr-4">
+          Allow
+        </button>
+        <button id="deny-btn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+          Deny
+        </button>
+      </div>
     </div>`;
+
   document.body.appendChild(modal);
 
   document.getElementById('allow-btn').onclick = () => {
     socket.emit('approve-user', { roomId: ROOM_ID, userId, userName });
     modal.remove();
   };
-  document.getElementById('deny-btn').onclick = () => modal.remove();
-}
 
+  document.getElementById('deny-btn').onclick = () => {
+    socket.emit('deny-user', { roomId: ROOM_ID, userId });
+    modal.remove();
+  };
+}
 const muteBtn = document.getElementById('mute-btn');
 muteBtn.addEventListener('click', () => {
   const audioTrack = localStream.getAudioTracks()[0];
