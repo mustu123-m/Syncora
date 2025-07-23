@@ -35,7 +35,7 @@ const messagesDiv = document.getElementById('messages');
 peer.on('open', id => {
   if (!my_username) my_username = `User-${id.slice(0, 4)}`;
   userNamesMap[id] = my_username;
-const socket = io(window.location.origin, {
+ socket = io(window.location.origin, {
   path: '/socket.io',
   transports: ['websocket']
 });
