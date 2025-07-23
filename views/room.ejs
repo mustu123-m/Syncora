@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Meeting Room</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e1e;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      padding: 10px 20px;
+      background-color: #2c2f33;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    #video-grid {
+      flex: 3;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      justify-content: center;
+      padding: 10px;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    video {
+      width: 250px;
+      height: auto;
+      border-radius: 10px;
+      background: #000;
+    }
+
+    .video-container {
+      background: black;
+  border-radius: 6px;
+  overflow: hidden;
+      position: relative;
+    }
+
+   .name-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 2px 6px;
+  font-size: 12px;
+  border-top-right-radius: 6px;
+}
+
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #292b2f;
+      border-left: 1px solid #444;
+      padding: 10px;
+      height: 100vh;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    #chat-form {
+      display: flex;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 5px 0 0 5px;
+    }
+
+    #chat-form button {
+      padding: 6px 12px;
+      border: none;
+      background-color: #5865f2;
+      color: white;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+
+    #reactions {
+      margin-top: 10px;
+    }
+
+    .reaction-btn {
+      margin: 5px 5px 0 0;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: none;
+      background-color: #40444b;
+      color: white;
+      cursor: pointer;
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(50, 50, 50, 0.8);
+      padding: 12px 20px;
+      border-radius: 20px;
+      display: flex;
+      gap: 15px;
+      z-index: 999;
+    }
+
+    #controls button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: #7289da;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+    }
+  
+  </style>
+</head>
+<body>
+  <div id="waiting-room" style="display:none; text-align: center; padding: 50px;">
+    <h2>⏳ Waiting for host approval...</h2>
+    <p>Please wait while the host reviews your request to join.</p>
+  </div>
+   <div id="meeting-ui">
+  <header>
+    <h3>Room ID: <%= roomId %></h3>
+    <ul id="user-list" style="list-style: none; display: flex; gap: 10px;"></ul>
+  </header>
+
+  <div id="main">
+    <div id="video-grid"></div>
+
+    <div id="chat-container">
+      <div id="messages" class="chat-messages"></div>
+
+      <form id="chat-form" class="chat-form">
+        <input id="chat-input" type="text" placeholder="Type message..." autocomplete="off">
+        <button type="submit">Send</button>
+      </form>
+
+      <div id="reactions">
+        <button class="reaction-btn" data-reaction="✋">✋ Raise Hand</button>
+        <button class="reaction-btn" data-reaction="👍">👍</button>
+        <button class="reaction-btn" data-reaction="❤️">❤️</button>
+        <button class="reaction-btn" data-reaction="😂">😂</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button id="mute-btn"> <i class="fas fa-microphone"></i></button>
+    <button id="video-btn">  <i class="fas fa-video"></i></button>
+    <button id="share-screen-btn"><i class="fas fa-desktop"></i></button>
+    <button id="invite-btn"> <i class="fas fa-user-plus"></i></button>
+<button id="leave-btn"> <i class="fas fa-sign-out-alt"></i></button>
+<% if (isHost) { %>
+  <button id="end-btn"> <i class="fas fa-times-circle"></i></button>
+<% } %>
+
+  </div>
+  </div>
+
+  <script>
+    const ROOM_ID = "<%= roomId %>";
+    const my_username = "<%= my_username %>";
+    let isHost = <%= JSON.stringify(isHost) %>;
+    const requireApproval = <%= JSON.stringify(requireApproval) %>;
+  </script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+  <script src="/js/room.js"></script>
+</body>
+</html>

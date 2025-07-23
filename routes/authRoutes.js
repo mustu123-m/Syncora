@@ -1,0 +1,13 @@
+const express=require('express');
+const route=express.Router();
+const authController=require("../controllers/authController.js");
+route.get("/register",authController.renderRegisterForm);
+route.post("/register",authController.registerUser);
+route.get("/login",authController.renderLoginForm);
+route.post("/login",authController.loginUser);
+route.get("/logout",authController.logoutUser);
+route.get("/forgot-password",authController.forgotPassword);
+route.post("/forgot-password",authController.sendOtpforpassword);
+route.post("/verify-otp",authController.verifyOtp);
+route.post("/reset-password",authController.resetPassword);
+module.exports=route;
