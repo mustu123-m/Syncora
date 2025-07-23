@@ -13,7 +13,7 @@ const peer = new Peer(undefined, {
   host: 'localhost',
   port: 9000,
   path: '/',
-  secure: true
+  secure: window.location.protocol === 'https:'
 });
 
 const myVideo = document.createElement('video');
