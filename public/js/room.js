@@ -9,12 +9,19 @@ let socket;
 let localStream, originalVideoTrack, originalAudioTrack;
 let screenSharing = false;
 
+// const peer = new Peer(undefined, {
+//   host: 'localhost',
+//   port: 9000,
+//   path: '/',
+//   secure: window.location.protocol === 'https:'
+// });
 const peer = new Peer(undefined, {
-  host: 'localhost',
-  port: 9000,
-  path: '/',
+  host: window.location.hostname,
+  port: window.location.port || (window.location.protocol === 'https:' ? 443 : 80),
+  path: '/peerjs',
   secure: window.location.protocol === 'https:'
 });
+
 
 const myVideo = document.createElement('video');
 myVideo.muted = true;
