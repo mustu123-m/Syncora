@@ -118,7 +118,6 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     if (isHost) {
       console.log("You are the host. Showing your video immediately.");
       addVideoStream(myVideo, stream, peer.id);
-      socket.emit("ready", ROOM_ID); // Let others connect
     }
   })
   .catch(err => {
