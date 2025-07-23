@@ -62,50 +62,49 @@ app.get("/dashboard",async (req,resp)=>{
 const rooms = {};  // roomId -> { hostId, users: { userId: userName } }
 
 io.on('connection', socket => {
-  socket.on('request-join', (roomId, userId, userName,isHost,requireApproval) => {
-  if (!rooms[roomId]) {
-    rooms[roomId] = {
-      hostId: userId,
-      users: {},
-      requireApproval // or store this in memory/session when room is created
-    };
-  }
+   const hostSockets = {};
 
-  const room = rooms[roomId];
-
-  if (isHost || room.hostId === userId) {
-    room.users[userId] = userName;
+  socket.on('host-ready', (roomId, userId, userName) => {
+    if (!rooms[roomId]) {
+      rooms[roomId] = {
+        hostId: userId,
+        users: {},
+        requireApproval: true // Make sure this matches your room creation logic
+      };
+    }
+    rooms[roomId].hostId = userId;
+    rooms[roomId].users[userId] = userName;
     socket.join(roomId);
     socket.data = { userId, userName, roomId, isHost: true };
-    socket.emit('user-approved', { approved: true, isHost: true });
-  } else if (room.requireApproval) {
-    const hostSocket = [...io.sockets.sockets.values()].find(
-      s => s.data?.isHost && s.data.roomId === roomId
-    );
+    hostSockets[roomId] = socket.id; // Track host socket by room
+  });
+ socket.on('request-join', (roomId, userId, userName, isHost, requireApproval) => {
+    const room = rooms[roomId];
+    if (!room) {
+      return socket.emit('room-not-found');
+    }
 
-  socket.data = { userId, userName, roomId, isHost: false }; 
-if (hostSocket) {
-  hostSocket.emit('join-request', { userId, userName });
-  socket.data.pending = { roomId, userId, userName };
-} else {
-  socket.emit('user-approved', { approved: false });
-}
+    if (isHost) {
+      return socket.emit('invalid-request', 'Hosts should use host-ready');
+    }
 
-  } else {
-    room.users[userId] = userName;
-    socket.join(roomId);
-    socket.data = { userId, userName, roomId, isHost: false };
-    socket.emit('user-approved', { approved: true, isHost: false });
-
-    // Notify others
-    socket.to(roomId).emit('user-connected', { userId, userName });
-
-    // Send existing users to new user
-    const users = Object.entries(room.users).map(([id, name]) => ({ userId: id, userName: name }));
-    socket.emit('existing-users', users);
-  }
-
-});
+    if (room.requireApproval) {
+      const hostSocketId = hostSockets[roomId];
+      if (hostSocketId) {
+        io.to(hostSocketId).emit('join-request', { userId, userName });
+        socket.data = { pendingApproval: true, roomId, userId, userName };
+      } else {
+        socket.emit('no-host-available');
+      }
+    } else {
+      // Auto-approval logic
+      room.users[userId] = userName;
+      socket.join(roomId);
+      socket.data = { userId, userName, roomId, isHost: false };
+      socket.emit('user-approved', { approved: true, isHost: false });
+      io.to(roomId).emit('user-connected', { userId, userName });
+    }
+  });
 
 
   socket.on('approve-user', ({ roomId, userId, userName }) => {
