@@ -34,6 +34,19 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000, secure: false }
 }));
 
+const server = http.createServer(app);
+const io = new Server(server, {
+  path: '/socket.io',
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+  path: '/'
+});
+app.use('/peerjs', peerServer);
 // 🔐 Auth + Routes
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -45,14 +58,6 @@ app.get("/dashboard",async (req,resp)=>{
   const user=await User.findById(req.session.userId);
   resp.render('dashboard',{user});
 })
-const server = http.createServer(app);
-const io = new Server(server, {
-  path: '/socket.io',
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
-});
 
 const rooms = {};  // roomId -> { hostId, users: { userId: userName } }
 
