@@ -5,7 +5,64 @@ const videoElements = {};
 
 let socket;
 let localStream, originalVideoTrack, originalAudioTrack;
-let screenSharing = false;
+let screenSharing = false;// === Control Buttons ===
+const muteBtn = document.getElementById('muteBtn');
+const videoBtn = document.getElementById('videoBtn');
+const leaveBtn = document.getElementById('leaveBtn');
+const raiseHandBtn = document.getElementById('raiseHandBtn');
+const reactionBtn = document.getElementById('reactionBtn');
+const screenShareBtn = document.getElementById('screenShareBtn');
+
+let audioEnabled = true;
+let videoEnabled = true;
+let screenStream;
+
+// Mute/Unmute Button
+
+// Screen Sharing Toggle
+screenShareBtn.addEventListener('click', async () => {
+  if (!screenSharing) {
+    try {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      const screenTrack = screenStream.getVideoTracks()[0];
+      Object.values(peers).forEach(peer => {
+        const sender = peer.peerConnection.getSenders().find(s => s.track.kind === 'video');
+        if (sender) sender.replaceTrack(screenTrack);
+      });
+      screenTrack.onended = () => {
+        stopScreenShare();
+      };
+      screenSharing = true;
+      screenShareBtn.innerText = 'Stop Sharing';
+    } catch (e) {
+      console.error('Screen share error:', e);
+    }
+  } else {
+    stopScreenShare();
+  }
+});
+
+function stopScreenShare() {
+  const videoTrack = myVideoStream.getVideoTracks()[0];
+  Object.values(peers).forEach(peer => {
+    const sender = peer.peerConnection.getSenders().find(s => s.track.kind === 'video');
+    if (sender) sender.replaceTrack(videoTrack);
+  });
+  screenStream.getTracks().forEach(track => track.stop());
+  screenSharing = false;
+  screenShareBtn.innerText = 'Share Screen';
+}
+
+// Chat/reaction message display helper
+function appendMessage(msg) {
+  const msgBox = document.getElementById('messages');
+  const li = document.createElement('li');
+  li.innerText = msg;
+  msgBox.appendChild(li);
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+
 
 const peer = new Peer(undefined, {
   host: window.location.hostname,
@@ -281,4 +338,35 @@ function showJoinRequestPopup(userId, userName) {
   }, 30000);
 }
 
-// Rest of your UI event handlers remain the same...
+// Rest of your UI event handlers remain the same..
+muteBtn.addEventListener('click', () => {
+  audioEnabled = !audioEnabled;
+  myVideoStream.getAudioTracks()[0].enabled = audioEnabled;
+  muteBtn.innerHTML = audioEnabled ? 'Mute' : 'Unmute';
+});
+
+// Start/Stop Video
+videoBtn.addEventListener('click', () => {
+  videoEnabled = !videoEnabled;
+  myVideoStream.getVideoTracks()[0].enabled = videoEnabled;
+  videoBtn.innerHTML = videoEnabled ? 'Stop Video' : 'Start Video';
+});
+
+// Leave Button
+leaveBtn.addEventListener('click', () => {
+  window.location.href = '/'; // or a custom leave handler
+});
+
+// Raise Hand Button
+raiseHandBtn.addEventListener('click', () => {
+  socket.emit('raise-hand', username);
+  appendMessage(`✋ ${username} raised their hand`);
+});
+
+// Reaction Button (e.g., send a 👍)
+reactionBtn.addEventListener('click', () => {
+  const emoji = '👍';
+  socket.emit('reaction', { emoji, username });
+  appendMessage(`${username}: ${emoji}`);
+});
+
