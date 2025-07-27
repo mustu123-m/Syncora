@@ -43,7 +43,7 @@ const io = new Server(server, {
 
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: '/peerjs'
+  path: '/'
 });
 
 app.use('/peerjs', peerServer);
