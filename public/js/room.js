@@ -6,12 +6,11 @@ const videoElements = {};
 let socket;
 let localStream, originalVideoTrack, originalAudioTrack;
 let screenSharing = false;// === Control Buttons ===
-const muteBtn = document.getElementById('muteBtn');
-const videoBtn = document.getElementById('videoBtn');
-const leaveBtn = document.getElementById('leaveBtn');
-const raiseHandBtn = document.getElementById('raiseHandBtn');
-const reactionBtn = document.getElementById('reactionBtn');
-const screenShareBtn = document.getElementById('screenShareBtn');
+const muteBtn = document.getElementById('mute-btn');
+const videoBtn = document.getElementById('video-btn');
+const leaveBtn = document.getElementById('leave-btn');
+const reactionBtn = document.getElementById('reaction-btn');
+const screenShareBtn = document.getElementById('share-screen-btn');
 
 let audioEnabled = true;
 let videoEnabled = true;
@@ -358,10 +357,7 @@ leaveBtn.addEventListener('click', () => {
 });
 
 // Raise Hand Button
-raiseHandBtn.addEventListener('click', () => {
-  socket.emit('raise-hand', username);
-  appendMessage(`✋ ${username} raised their hand`);
-});
+
 
 // Reaction Button (e.g., send a 👍)
 reactionBtn.addEventListener('click', () => {
