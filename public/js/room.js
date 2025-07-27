@@ -29,7 +29,7 @@ const messagesDiv = document.getElementById('messages');
 // });
 const peer = new Peer(undefined, {
   host: location.hostname,
-  path: '/peerjs',
+  path: '/',
   secure: true
 });
 
