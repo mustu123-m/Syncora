@@ -21,12 +21,18 @@ const userList = document.getElementById('user-list');
 const chatInput = document.getElementById('chat-input');
 const messagesDiv = document.getElementById('messages');
 
+// const peer = new Peer(undefined, {
+//   host: window.location.hostname,
+//   port: window.location.protocol === 'https:' ? 443 : 80,
+//   path: '/peerjs',
+//   secure: window.location.protocol === 'https:'
+// });
 const peer = new Peer(undefined, {
-  host: window.location.hostname,
-  port: window.location.protocol === 'https:' ? 443 : 80,
+  host: location.hostname,
   path: '/peerjs',
-  secure: window.location.protocol === 'https:'
+  secure: true
 });
+
 
 const myVideo = document.createElement('video');
 myVideo.muted = true;
