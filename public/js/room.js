@@ -60,7 +60,7 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
   });
 const socket = io(window.location.origin, {
   path: '/socket.io',
-  transports: ['websocket']
+  // transports: ['websocket']
 });
 peer.on('open', id => {
   userNamesMap[id] = my_username;
