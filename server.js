@@ -45,6 +45,13 @@ app.use(session({
 //   path: '/peerjs' ,
 //    allow_discovery: true
 // });
+app.use('/peerjs', peerServer);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(authRoute);
+app.use(roomRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
   path: '/socket.io',
@@ -61,13 +68,7 @@ const peerServer = ExpressPeerServer(server, {
   path: '/', // Changed path to '/peerjs'
   proxied: true // Added for Render.com
 });
-app.use('/peerjs', peerServer);
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-app.use(authRoute);
-app.use(roomRoutes);
+
 
 app.get("/dashboard", async (req, res) => {
   const user = await User.findById(req.session.userId);
