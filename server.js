@@ -172,7 +172,7 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('chat-message', { userName, message });
   });
 
-socket.on('reaction', ({ userName, reaction }) => {
+socket.on('reaction', ({roomId, userName, reaction }) => {
   socket.to(roomId).emit('reaction', { userName, reaction });
 });
 
