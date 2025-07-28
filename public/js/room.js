@@ -30,7 +30,7 @@ const messagesDiv = document.getElementById('messages');
 const peer = new Peer(undefined, {
   host: location.hostname,
   path: '/',
-  secure:  secure: location.protocol === 'https:'
+  secure:location.protocol === 'https:'
 });
 
 
