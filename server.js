@@ -94,6 +94,7 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     socket.data = { userId, userName, roomId, isHost: true };
     hostSockets[roomId] = socket.id;
+    console.log(`Registered host socket ID for ${roomId}: ${socket.id}`);
   });
 
   socket.on('request-join', (roomId, userId, userName, isHost, requireApproval) => {
