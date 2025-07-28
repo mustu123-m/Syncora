@@ -40,10 +40,9 @@ const io = new Server(server, {
     methods: ['GET', 'POST']
   }
 });
-
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: '/'
+  path: '/peerjs'  // Make this match the default client path
 });
 
 
