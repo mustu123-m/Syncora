@@ -179,7 +179,10 @@ socket.on('reaction', ({ userName, reaction }) => {
   socket.on('end-meeting', (roomId) => {
   io.to(roomId).emit('meeting-ended');
 });
-
+socket.on('connect_error', (err) => {
+  console.error('Socket connection error:', err);
+  // Implement reconnection logic or user notification
+});
 });
 
 server.listen(5000, () => console.log('🚀 Server running on port 5000'));
