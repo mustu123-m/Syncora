@@ -184,5 +184,9 @@ socket.on('connect_error', (err) => {
   // Implement reconnection logic or user notification
 });
 });
-
-server.listen(5000, () => console.log('🚀 Server running on port 5000'));
+const port=process.env.PORT;
+server.listen(port, () => 
+  {
+    console.log('🚀 Server running on port 5000')
+  }
+             );
