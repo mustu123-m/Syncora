@@ -28,9 +28,22 @@ const messagesDiv = document.getElementById('messages');
 //   secure: window.location.protocol === 'https:'
 // });
 const peer = new Peer(undefined, {
-  host: location.hostname,
-  path: '/',
-  secure:location.protocol === 'https:'
+  host: window.location.hostname,
+  path: '/peerjs', // Changed to match server
+  secure: window.location.protocol === 'https:',
+  port: window.location.protocol === 'https:' ? 443 : 80
+});
+
+// [Keep all your existing event handlers and functions exactly as they were]
+// Only the PeerJS configuration above was changed
+
+// Add error handling for PeerJS
+peer.on('error', (err) => {
+  console.error('PeerJS error:', err);
+  if (err.type === 'unavailable-id') {
+    console.log('Peer ID was taken, retrying...');
+    peer.reconnect();
+  }
 });
 
 
