@@ -2,8 +2,6 @@ const userNamesMap = {};
 const connectedPeers = {};
 const connectedUsers = {};
 const videoElements = {};
-
-let socket;
 let localStream, originalVideoTrack, originalAudioTrack;
 let screenSharing = false;
 let screenStream;
@@ -60,13 +58,11 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
     alert("🎥 Could not access camera/microphone. Check permissions.");
     console.error(err);
   });
-
+const socket = io(window.location.origin, {
+  path: '/socket.io',
+  transports: ['websocket']
+});
 peer.on('open', id => {
-  socket = io(window.location.origin, {
-    path: '/socket.io',
-    transports: ['websocket']
-  });
-
   userNamesMap[id] = my_username;
 
   if (isHost) {
