@@ -187,6 +187,8 @@ socket.on('connect_error', (err) => {
 const port=process.env.PORT;
 server.listen(port, () => 
   {
-    console.log('🚀 Server running on port 5000')
+     console.log(`🚀 Server running on port ${port}`);
+    console.log(`Socket.IO configured with path: /socket.io`);
+
   }
              );
