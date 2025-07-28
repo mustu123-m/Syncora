@@ -271,17 +271,6 @@ document.getElementById('chat-form').addEventListener('submit', e => {
     chatInput.value = '';
   }
 });
-
-reactionButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const emoji = btn.dataset.reaction;
-    socket.emit('reaction', { userName: my_username, reaction: emoji });
-    appendMessage(`${my_username}: ${emoji}`);
-  });
-});
-
-
-
 function stopScreenShare() {
   const videoTrack = localStream.getVideoTracks()[0];
   Object.values(connectedPeers).forEach(peer => {
