@@ -265,6 +265,24 @@ if (endBtn) {
     }
   });
 }
+document.getElementById('chat-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const message = chatInput.value.trim();
+  if (message.length > 0) {
+    socket.emit('chat-message', { roomId: ROOM_ID, userName: my_username, message });
+    appendMessage(`🧑‍💻 You: ${message}`);
+    chatInput.value = '';
+  }
+});
+
+reactionButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const emoji = btn.dataset.reaction;
+    socket.emit('reaction', { userName: my_username, reaction: emoji });
+    appendMessage(`${my_username}: ${emoji}`);
+  });
+});
+
 
 
 function stopScreenShare() {
