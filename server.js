@@ -174,6 +174,10 @@ io.on('connection', (socket) => {
   socket.on('reaction', ({ roomId, userId, userName, reaction }) => {
     io.to(roomId).emit('reaction', { userName, reaction });
   });
+  socket.on('end-meeting', (roomId) => {
+  io.to(roomId).emit('meeting-ended');
+});
+
 });
 
 server.listen(5000, () => console.log('🚀 Server running on port 5000'));
