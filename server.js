@@ -58,15 +58,14 @@ const io = new Server(server, {
 // Updated PeerJS server configuration
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: '/peerjs', // Changed path to '/peerjs'
+  path: '/', // Changed path to '/peerjs'
   proxied: true // Added for Render.com
 });
-
+app.use('/peerjs', peerServer);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use('/peerjs', peerServer);
 app.use(authRoute);
 app.use(roomRoutes);
 
