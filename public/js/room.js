@@ -246,6 +246,26 @@ screenShareBtn.addEventListener('click', async () => {
     stopScreenShare();
   }
 });
+const inviteBtn = document.getElementById('invite-btn');
+
+inviteBtn.addEventListener('click', () => {
+  const inviteLink = `${window.location.origin}/room/${ROOM_ID}`;
+  navigator.clipboard.writeText(inviteLink).then(() => {
+    appendMessage(`📨 Invite link copied: ${inviteLink}`);
+  }).catch(err => {
+    console.error('Failed to copy invite link:', err);
+  });
+});
+const endBtn = document.getElementById('end-btn');
+
+if (endBtn) {
+  endBtn.addEventListener('click', () => {
+    if (confirm('Are you sure you want to end the meeting for everyone?')) {
+      socket.emit('end-meeting', ROOM_ID);
+    }
+  });
+}
+
 
 function stopScreenShare() {
   const videoTrack = localStream.getVideoTracks()[0];
