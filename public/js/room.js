@@ -118,7 +118,7 @@ peer.on('open', id => {
     appendMessage(`💬 ${userName}: ${message}`);
   });
 
-  socket.on('reaction', ({ userName, reaction }) => {
+  socket.on('reaction', ({ ROOM_ID,userName, reaction }) => {
     appendMessage(`🎉 ${userName} reacted with ${reaction}`);
   });
 });
@@ -203,7 +203,7 @@ function appendMessage(msg) {
 reactionButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const emoji = btn.dataset.reaction;
-    socket.emit('reaction', { userName: my_username, reaction: emoji });
+    socket.emit('reaction', {roomId:ROOM_ID, userName: my_username, reaction: emoji });
     appendMessage(`${my_username}: ${emoji}`);
   });
 });
