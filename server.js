@@ -42,7 +42,8 @@ const io = new Server(server, {
 });
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: '/peerjs'  // Make this match the default client path
+  path: '/peerjs' ,
+   allow_discovery: true
 });
 
 
