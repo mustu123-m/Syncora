@@ -71,6 +71,7 @@ peer.on('open', id => {
 
   if (isHost) {
     document.getElementById('meeting-ui').style.display = 'block';
+    console.log("Emitting host-ready", ROOM_ID, peer.id, my_username);
     socket.emit('host-ready', ROOM_ID, id, my_username);
   } else {
     document.getElementById('waiting-room').style.display = 'block';
