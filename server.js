@@ -49,7 +49,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   path: '/socket.io',
   cors: {
-    origin: '*',
+    origin: ['https://syncora.onrender.com'],
     methods: ['GET', 'POST']
   },
   transports: ['websocket', 'polling'] // Added transports
