@@ -32,20 +32,35 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000, secure: false }
 }));
 
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   path: '/socket.io',
+//   cors: {
+//     origin: '*',
+//     methods: ['GET', 'POST']
+//   }
+// });
+// const peerServer = ExpressPeerServer(server, {
+//   debug: true,
+//   path: '/peerjs' ,
+//    allow_discovery: true
+// });
 const server = http.createServer(app);
 const io = new Server(server, {
   path: '/socket.io',
   cors: {
     origin: '*',
     methods: ['GET', 'POST']
-  }
-});
-const peerServer = ExpressPeerServer(server, {
-  debug: true,
-  path: '/peerjs' ,
-   allow_discovery: true
+  },
+  transports: ['websocket', 'polling'] // Added transports
 });
 
+// Updated PeerJS server configuration
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+  path: '/peerjs', // Changed path to '/peerjs'
+  proxied: true // Added for Render.com
+});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
