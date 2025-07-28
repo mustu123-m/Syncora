@@ -46,7 +46,6 @@ peer.on('error', (err) => {
   }
 });
 
-
 const myVideo = document.createElement('video');
 myVideo.muted = true;
 
