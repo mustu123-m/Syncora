@@ -286,6 +286,7 @@ function stopScreenShare() {
 function showJoinRequestPopup(userId, userName) {
   console.log(userName);
   const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
   modal.innerHTML = `
     <div style="background: rgba(0,0,0,0.8); position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;">
       <div style="background: white; padding: 20px; border-radius: 8px;">
