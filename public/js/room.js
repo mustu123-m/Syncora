@@ -71,6 +71,7 @@ peer.on('open', id => {
     socket.emit('host-ready', ROOM_ID, id, my_username);
   } else {
     document.getElementById('waiting-room').style.display = 'block';
+    console.log(my_username);
     socket.emit('request-join', ROOM_ID, id, my_username, isHost, requireApproval);
   }
 
