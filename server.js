@@ -154,6 +154,15 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('deny-user', ({ roomId, userId }) => {
+  console.log(`User denied: ${userId} in room ${roomId}`);
+  
+  // Emit a specific event to the denied user
+  io.to(userId).emit('join-denied', {
+    message: 'Your request to join the meeting was denied by the host.'
+  });
+});
+
   socket.on('disconnecting', () => {
     const { userId, roomId, isHost } = socket.data || {};
     if (!roomId || !rooms[roomId]) return;
