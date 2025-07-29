@@ -288,12 +288,55 @@ function showJoinRequestPopup(userId, userName) {
   const modal = document.createElement('div');
     modal.className = 'modal-overlay';
   modal.innerHTML = `
-    <div style="background: rgba(0,0,0,0.8); position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;">
-      <div style="background: white; padding: 20px; border-radius: 8px;">
-        <h3>User <b>${userName}</b> wants to join.</h3>
-        <div style="margin-top: 20px; text-align: right;">
-          <button id="deny-btn">Deny</button>
-          <button id="allow-btn">Allow</button>
+    <div style="
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      font-family: 'Segoe UI', sans-serif;
+    ">
+      <div style="
+        background: #2c2f33;
+        color: #ffffff;
+        padding: 30px 25px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        text-align: center;
+      ">
+        <h2 style="margin-top: 0; margin-bottom: 15px; font-size: 20px;">Join Request</h2>
+        <p style="margin-bottom: 25px; font-size: 16px;">
+          <strong>${userName}</strong> is requesting to join the meeting.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 15px;">
+          <button id="deny-btn" style="
+            padding: 10px 18px;
+            background: #ff4d4f;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+          ">
+            Deny
+          </button>
+          <button id="allow-btn" style="
+            padding: 10px 18px;
+            background: #4caf50;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+          ">
+            Allow
+          </button>
         </div>
       </div>
     </div>
