@@ -122,6 +122,11 @@ peer.on('open', id => {
   socket.on('reaction', ({ ROOM_ID,userName, reaction }) => {
     appendMessage(`🎉 ${userName} reacted with ${reaction}`);
   });
+  socket.on('join-denied', ({ message }) => {
+  alert(message || 'You were denied entry by the host.');
+  window.location.href = '/dashboard'; // or show a proper message/page
+});
+
 });
 
 peer.on('call', call => {
