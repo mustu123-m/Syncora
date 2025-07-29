@@ -284,6 +284,7 @@ function stopScreenShare() {
 }
 
 function showJoinRequestPopup(userId, userName) {
+  console.log(userName);
   const modal = document.createElement('div');
   modal.innerHTML = `
     <div style="background: rgba(0,0,0,0.8); position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;">
