@@ -228,15 +228,48 @@
     background-color: rgba(255,255,255,0.2);
     border-radius: 3px;
   }
+/* General chat container styles */
+#chat-container {
+  flex: 1; /* This is for larger screens when it's part of flex */
+  display: flex;
+  flex-direction: column;
+  background: rgba(41, 43, 47, 0.85);
+  border-left: 1px solid #444;
+  padding: 10px;
+  backdrop-filter: blur(8px);
+  /* Default positioning for larger screens if not using flex for it, 
+     or if you want it fixed always */
+  /* If you want it always fixed: */
+  /*
+  position: fixed;
+  bottom: 16px; /* 4 units * 4px/unit = 16px (assuming Tailwind's default spacing) */
+  /*right: 16px; */
+  /*width: 288px; /* 72 units * 4px/unit = 288px */
+  /*height: 384px; /* 96 units * 4px/unit = 384px */
+  /*z-index: 50; */
+}
 
-  @media screen and (max-width: 768px) {
-    #main {
-      flex-direction: column;
-    }
 
-    #chat-container {
-      height: 300px;
-    }
+@media screen and (max-width: 768px) {
+  #main {
+    flex-direction: column;
+  }
+
+  #chat-container {
+    /* Override flex behavior and position it fixed for mobile */
+    position: fixed; /* Make it fixed relative to the viewport */
+    bottom: 16px; /* Adjust as needed, e.g., 1rem or 16px */
+    right: 16px; /* Adjust as needed */
+    width: calc(100% - 32px); /* Full width minus padding on both sides */
+    max-width: 300px; /* Or a specific max-width for phone screens */
+    height: 300px; /* As you already have */
+    border-left: none; /* Remove left border if it makes sense for full-width mobile chat */
+    border-top-left-radius: 12px; /* Add some rounded corners */
+    border-top-right-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Add a subtle shadow */
+    z-index: 999; /* Ensure it's above other content */
+  }
+}
 
     #controls {
       flex-wrap: wrap;
@@ -259,7 +292,7 @@
   <div id="main">
     <div id="video-grid"></div>
 
-<div id="chat-container" class="fixed bottom-4 right-4 w-72 h-96 max-w-full sm:w-72 sm:h-96 z-50 flex flex-col">
+<div id="chat-container" class="flex flex-col">
 
       <div id="messages" class="chat-messages"></div>
 
