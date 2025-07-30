@@ -35,8 +35,9 @@
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     z-index: 100;
-    /* Adding a height or min-height for consistent top positioning reference */
-    min-height: 50px; /* Adjust if your header is taller/shorter */
+    /* Define a clear height for header so we can use it for chat positioning */
+    height: 50px; /* Adjust this value if your header is taller/shorter */
+    box-sizing: border-box; /* Include padding in height calculation */
   }
 
   #main {
@@ -55,7 +56,8 @@
     gap: 12px;
     overflow-y: auto;
     /* Ensure padding for fixed controls at the bottom on larger screens */
-    padding-bottom: 100px; /* Adjust if your controls bar is taller/shorter */
+    padding-bottom: 100px; /* Keep this to account for the controls bar */
+    padding-top: 60px; /* Keep this to account for the header */
   }
 
   video {
@@ -94,9 +96,10 @@
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 
-    /* NEW: Dynamic height for desktop/larger screens */
-    top: 65px; /* Roughly header height + some margin. Adjust as needed. */
-    bottom: 80px; /* Roughly controls height + some margin. Adjust as needed. */
+    /* Dynamic height for desktop/larger screens */
+    /* Adjust these values to exactly match your header and controls height + desired small margin */
+    top: 50px; /* Should be equal to header height if you want it flush */
+    bottom: 80px; /* Should be roughly controls height + bottom margin (15px) */
     height: auto; /* Let top/bottom define height */
   }
 
@@ -177,7 +180,7 @@
 
   #controls {
     position: fixed;
-    bottom: 15px;
+    bottom: 15px; /* This is the `bottom` reference for the controls bar itself */
     left: 50%;
     transform: translateX(-50%);
     background: rgba(50, 50, 50, 0.85);
@@ -188,8 +191,9 @@
     backdrop-filter: blur(12px);
     z-index: 1000;
     box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-    /* Adding a height for consistent bottom positioning reference */
-    min-height: 60px; /* Adjust if your controls bar is taller/shorter */
+    /* Define a clear height for controls so we can use it for chat positioning */
+    height: 60px; /* Adjust this value if your controls bar is taller/shorter */
+    box-sizing: border-box; /* Include padding in height calculation */
   }
 
   #controls button {
@@ -259,19 +263,24 @@
 
     #video-grid {
       /* Adjust padding to account for fixed header and fixed controls + fixed chat */
-      padding-top: 70px; /* Roughly header height + margin */
-      padding-bottom: 350px; /* Combined height of chat + controls + some buffer */
+      padding-top: 60px; /* Header height (50px) + small margin (10px) */
+      /* This padding-bottom must be total height of controls + chat + any desired gap */
+      padding-bottom: calc(100% - 70px - 70px); /* Adjust based on chat and controls height */
+      /* Let's be more precise: height of controls (60px) + its bottom (15px) + chat height (let's say 70vh from top:70 to bottom:80 is about 70vh) */
+      /* A more robust way for video-grid padding on mobile when chat is fixed: */
+      padding-bottom: 400px; /* ESTIMATE: height of fixed chat (approx 300px) + controls (60px) + bottom margin of controls (15px) */
     }
 
     #chat-container {
       position: fixed;
       left: 16px;
       right: 16px;
-      top: 70px; /* Adjust this based on your actual header height */
-      bottom: 80px; /* Adjust this based on your actual controls height */
-      width: auto; /* Let left/right define width */
+      /* Adjust these values to be flush with header and controls */
+      top: 50px; /* This should be the exact height of your header if you want it flush */
+      bottom: 80px; /* This should be the height of your controls bar (60px) + its bottom position (15px) + maybe 5px gap = 80px */
+      width: auto;
       height: auto; /* Let top/bottom define height dynamically */
-      max-height: calc(100vh - 150px); /* A fallback max height */
+      max-height: calc(100vh - 120px); /* Safety net for very tall screens: viewport height minus header height (50) and controls height+bottom (80) */
       border-left: none;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
@@ -310,7 +319,7 @@
 
     #controls {
       flex-wrap: wrap;
-      bottom: 15px;
+      bottom: 15px; /* Stay fixed at this distance from the bottom */
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 32px);
