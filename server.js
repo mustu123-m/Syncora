@@ -158,9 +158,22 @@ io.on('connection', (socket) => {
   console.log(`User denied: ${userId} in room ${roomId}`);
   
   // Emit a specific event to the denied user
-  io.to(userId).emit('join-denied', {
+  // io.to(userId).emit('join-denied', {
+  //   message: 'Your request to join the meeting was denied by the host.'
+  // });
+    const targetSocket = [...io.sockets.sockets.values()].find(
+  s => s.data?.pendingApproval && s.data.userId === userId && s.data.roomId === roomId
+);
+
+if (targetSocket) {
+  targetSocket.emit('join-denied', {
     message: 'Your request to join the meeting was denied by the host.'
   });
+  console.log(`Denied user ${userId} notified.`);
+} else {
+  console.log(`Socket for denied user ${userId} not found.`);
+}
+
 });
 
   socket.on('disconnecting', () => {
