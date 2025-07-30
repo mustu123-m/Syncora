@@ -5,8 +5,7 @@
   <title>Meeting Room</title>
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
- <style>
+<style>
   body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -76,15 +75,28 @@
     border-top-right-radius: 6px;
   }
 
+  /* Base styles for chat-container - it should ideally be fixed on all screens if it's an overlay */
   #chat-container {
-    flex: 1;
+    /* Remove flex: 1; from here if you want it to be fixed always,
+       as flex properties will be overridden by position: fixed; */
+    /* flex: 1; */
     display: flex;
     flex-direction: column;
     background: rgba(41, 43, 47, 0.85);
     border-left: 1px solid #444;
     padding: 10px;
-    height: 100%;
+    /* height: 100%; removed this as fixed elements usually have defined heights/widths */
     backdrop-filter: blur(8px);
+
+    /* Positioning for larger screens (and default if not overridden) */
+    position: fixed; /* Make it fixed */
+    bottom: 16px; /* Example, adjust as needed */
+    right: 16px; /* Example, adjust as needed */
+    width: 300px; /* Example width for desktop */
+    height: 400px; /* Example height for desktop */
+    z-index: 50; /* Ensure it's above other content */
+    border-radius: 12px; /* Add some overall rounding */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   #messages {
@@ -228,51 +240,29 @@
     background-color: rgba(255,255,255,0.2);
     border-radius: 3px;
   }
-/* General chat container styles */
-#chat-container {
-  flex: 1; /* This is for larger screens when it's part of flex */
-  display: flex;
-  flex-direction: column;
-  background: rgba(41, 43, 47, 0.85);
-  border-left: 1px solid #444;
-  padding: 10px;
-  backdrop-filter: blur(8px);
-  /* Default positioning for larger screens if not using flex for it, 
-     or if you want it fixed always */
-  /* If you want it always fixed: */
-  /*
-  position: fixed;
-  bottom: 16px; /* 4 units * 4px/unit = 16px (assuming Tailwind's default spacing) */
-  /*right: 16px; */
-  /*width: 288px; /* 72 units * 4px/unit = 288px */
-  /*height: 384px; /* 96 units * 4px/unit = 384px */
-  /*z-index: 50; */
-}
 
+  /* Corrected Media Query */
+  @media screen and (max-width: 768px) {
+    #main {
+      flex-direction: column;
+    }
 
-@media screen and (max-width: 768px) {
-  #main {
-    flex-direction: column;
-  }
-
-  #chat-container {
-    /* Override flex behavior and position it fixed for mobile */
-    position: fixed; /* Make it fixed relative to the viewport */
-    bottom: 16px; /* Adjust as needed, e.g., 1rem or 16px */
-    right: 16px; /* Adjust as needed */
-    width: calc(100% - 32px); /* Full width minus padding on both sides */
-    max-width: 300px; /* Or a specific max-width for phone screens */
-    height: 300px; /* As you already have */
-    border-left: none; /* Remove left border if it makes sense for full-width mobile chat */
-    border-top-left-radius: 12px; /* Add some rounded corners */
-    border-top-right-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* Add a subtle shadow */
-    z-index: 999; /* Ensure it's above other content */
-  }
-}
+    #chat-container {
+      position: fixed; /* Crucial: make it fixed for mobile */
+      bottom: 16px; /* Position from bottom */
+      right: 16px; /* Position from right */
+      width: calc(100% - 32px); /* Full width minus side margins */
+      max-width: 350px; /* Limit max width for readability on larger phones */
+      height: 300px; /* Your desired height for mobile */
+      border-left: none; /* No left border when it's full width */
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 999;
+    }
 
     #controls {
-      flex-wrap: wrap;
+      flex-wrap: wrap; /* This was inside the wrong brace before */
     }
   }
 </style>
