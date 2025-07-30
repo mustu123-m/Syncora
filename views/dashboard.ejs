@@ -17,9 +17,26 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
+  .animated-bg {
+    background: linear-gradient(-45deg, #667eea, #764ba2, #6b8dd6, #8e37d7);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
   </style>
 </head>
-<body class="min-h-screen text-white font-sans">
+<body class="min-h-screen text-white font-sans animated-bg min-h-screen text-white">
 
   <!-- HEADER -->
   <header class="glass shadow-md py-6 px-6 sm:px-10 flex justify-between items-center">
