@@ -331,27 +331,20 @@ videoEl.play().catch(err => console.warn(err));
 
 
 function removeVideo(userId) {
-
-const container = videoElements[userId];
-
-if (container) {
-
-const video = container.querySelector('video');
-
-if (video?.srcObject) {
-
-video.srcObject.getTracks().forEach(track => track.stop());
-
-video.srcObject = null;
-
-}
-
-container.remove();
-
-delete videoElements[userId];
-
-}
-
+    const container = videoElements[userId];
+    if (container) {
+        console.log(`Removing video for: ${userNamesMap[userId] || userId}`); // More descriptive log
+        const video = container.querySelector('video');
+        if (video?.srcObject) {
+            // Stop all tracks to release camera/mic resources
+            video.srcObject.getTracks().forEach(track => track.stop());
+            video.srcObject = null; // Dereference the stream
+        }
+        container.remove(); // Remove the DOM element
+        delete videoElements[userId]; // Remove from map
+    } else {
+        console.warn(`Attempted to remove video for ${userId}, but container not found.`);
+    }
 }
 
 
@@ -377,12 +370,16 @@ connectedUsers[userId] = li;
 
 
 function removeUserFromList(userId) {
-
-connectedUsers[userId]?.remove();
-
-delete connectedUsers[userId];
-
+    if (connectedUsers[userId]) {
+        connectedUsers[userId].remove();
+        delete connectedUsers[userId];
+        delete userNamesMap[userId]; // <-- ADD THIS LINE to clean userNamesMap
+        console.log(`User removed from list: ${userId}`);
+    } else {
+        console.warn(`Attempted to remove user ${userId} from list, but not found.`);
+    }
 }
+
 
 
 
