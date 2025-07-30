@@ -6,96 +6,24 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    background-size: 400% 400%;
-    animation: bgShift 20s ease infinite;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
+  /* ... (your existing general styles up to #chat-container) ... */
 
-  @keyframes bgShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  header {
-    padding: 12px 20px;
-    background-color: rgba(44, 47, 51, 0.8);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    z-index: 100;
-  }
-
-  #main {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-  }
-
-  #video-grid {
-    flex: 3;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    justify-content: center;
-    padding: 12px;
-    gap: 12px;
-    overflow-y: auto;
-  }
-
-  video {
-    width: 250px;
-    border-radius: 12px;
-    background: black;
-  }
-
-  .video-container {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .name-label {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background: rgba(0,0,0,0.6);
-    padding: 4px 8px;
-    font-size: 12px;
-    border-top-right-radius: 6px;
-  }
-
-  /* Base styles for chat-container - it should ideally be fixed on all screens if it's an overlay */
+  /* Base styles for chat-container (for larger screens and default fixed behavior) */
   #chat-container {
-    /* Remove flex: 1; from here if you want it to be fixed always,
-       as flex properties will be overridden by position: fixed; */
-    /* flex: 1; */
     display: flex;
     flex-direction: column;
     background: rgba(41, 43, 47, 0.85);
     border-left: 1px solid #444;
     padding: 10px;
-    /* height: 100%; removed this as fixed elements usually have defined heights/widths */
     backdrop-filter: blur(8px);
 
-    /* Positioning for larger screens (and default if not overridden) */
-    position: fixed; /* Make it fixed */
-    bottom: 16px; /* Example, adjust as needed */
-    right: 16px; /* Example, adjust as needed */
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
     width: 300px; /* Example width for desktop */
     height: 400px; /* Example height for desktop */
-    z-index: 50; /* Ensure it's above other content */
-    border-radius: 12px; /* Add some overall rounding */
+    z-index: 50;
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
@@ -114,7 +42,7 @@
     border-radius: 8px;
     max-width: 80%;
     word-wrap: break-word;
-    font-size: 14px;
+    font-size: 14px; /* Base font size */
   }
 
   .chat-message.me {
@@ -134,6 +62,7 @@
     border-radius: 10px 0 0 10px;
     background-color: #2f3136;
     color: white;
+    font-size: 16px; /* Base font size for input */
   }
 
   #chat-form button {
@@ -144,6 +73,7 @@
     color: white;
     cursor: pointer;
     transition: background 0.3s ease;
+    font-size: 16px; /* Base font size for send button */
   }
 
   #chat-form button:hover {
@@ -164,7 +94,7 @@
     background-color: #40444b;
     color: white;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 14px; /* Base font size for reaction buttons */
     transition: background 0.2s ease;
   }
 
@@ -189,7 +119,7 @@
 
   #controls button {
     padding: 10px 16px;
-    font-size: 16px;
+    font-size: 16px; /* Base font size for control buttons */
     border-radius: 10px;
     border: none;
     background-color: #7289da;
@@ -241,28 +171,75 @@
     border-radius: 3px;
   }
 
-  /* Corrected Media Query */
+  /* Corrected Media Query for Mobile */
   @media screen and (max-width: 768px) {
     #main {
       flex-direction: column;
+      /* On mobile, if chat-container is fixed, video-grid might need more space */
+      /* You might consider making video-grid fill more space or hide chat on small screens
+         and have a toggle. For now, let's just adjust positioning. */
     }
 
+    #video-grid {
+      padding-bottom: 320px; /* Add padding to make space for the chat container */
+      /* This is an estimate: Height of chat-container (300px) + bottom control bar (approx 60-70px) */
+    }
+
+
     #chat-container {
-      position: fixed; /* Crucial: make it fixed for mobile */
-      bottom: 16px; /* Position from bottom */
+      position: fixed;
+      left: 16px; /* Position from left to ensure it's on the right side but with margin */
       right: 16px; /* Position from right */
-      width: calc(100% - 32px); /* Full width minus side margins */
-      max-width: 350px; /* Limit max width for readability on larger phones */
-      height: 300px; /* Your desired height for mobile */
-      border-left: none; /* No left border when it's full width */
+      bottom: 80px; /* Adjust to be above the controls bar */
+      top: unset; /* Ensure it doesn't get pushed from top */
+      width: auto; /* Let it stretch horizontally based on left/right */
+      height: calc(80vh - 100px); /* Use viewport height for better scaling, adjust 100px as needed */
+      max-height: 500px; /* Prevent it from getting too tall on very large phones */
+      border-left: none;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       z-index: 999;
+      padding: 15px; /* Increase padding for better touch targets */
+    }
+
+    /* Adjust font sizes and padding within chat container for mobile */
+    .chat-message {
+      font-size: 16px; /* Larger font size for messages */
+      padding: 10px 15px; /* More padding for messages */
+    }
+
+    #chat-input {
+      font-size: 18px; /* Larger input font */
+      padding: 12px; /* More padding for input */
+      border-radius: 12px 0 0 12px; /* Slightly larger border radius */
+    }
+
+    #chat-form button {
+      font-size: 18px; /* Larger send button font */
+      padding: 12px 20px; /* More padding for send button */
+      border-radius: 0 12px 12px 0;
+    }
+
+    .reaction-btn {
+      font-size: 16px; /* Larger reaction button font */
+      padding: 8px 14px; /* More padding for reaction buttons */
+      border-radius: 10px;
     }
 
     #controls {
-      flex-wrap: wrap; /* This was inside the wrong brace before */
+      flex-wrap: wrap;
+      bottom: 15px; /* Keep controls at the very bottom */
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px); /* Stretch controls across bottom with padding */
+      padding: 12px 15px; /* Slightly more padding for controls */
+      gap: 10px; /* Adjust gap between buttons */
+    }
+
+    #controls button {
+      font-size: 18px; /* Larger icons/text in control buttons */
+      padding: 12px 18px; /* More padding for control buttons */
     }
   }
 </style>
