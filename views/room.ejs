@@ -35,6 +35,8 @@
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     z-index: 100;
+    /* Adding a height or min-height for consistent top positioning reference */
+    min-height: 50px; /* Adjust if your header is taller/shorter */
   }
 
   #main {
@@ -52,8 +54,8 @@
     padding: 12px;
     gap: 12px;
     overflow-y: auto;
-    /* Add padding-bottom here for larger screens too if chat is fixed */
-    padding-bottom: 100px; /* Adjust if your controls are larger/smaller */
+    /* Ensure padding for fixed controls at the bottom on larger screens */
+    padding-bottom: 100px; /* Adjust if your controls bar is taller/shorter */
   }
 
   video {
@@ -85,14 +87,17 @@
     border-left: 1px solid #444;
     padding: 10px;
     backdrop-filter: blur(8px);
-    position: fixed; /* Keep it fixed for all screens by default */
-    bottom: 16px;
-    right: 16px;
+    position: fixed;
+    right: 16px; /* Keep it on the right */
     width: 300px; /* Desktop width */
-    height: 400px; /* Desktop height */
     z-index: 50;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+    /* NEW: Dynamic height for desktop/larger screens */
+    top: 65px; /* Roughly header height + some margin. Adjust as needed. */
+    bottom: 80px; /* Roughly controls height + some margin. Adjust as needed. */
+    height: auto; /* Let top/bottom define height */
   }
 
   #messages {
@@ -183,6 +188,8 @@
     backdrop-filter: blur(12px);
     z-index: 1000;
     box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    /* Adding a height for consistent bottom positioning reference */
+    min-height: 60px; /* Adjust if your controls bar is taller/shorter */
   }
 
   #controls button {
@@ -248,25 +255,20 @@
   @media screen and (max-width: 768px) {
     #main {
       flex-direction: column;
-      /* No flex: 1; here as chat container is fixed */
     }
 
-    /* Adjust padding for video grid to prevent overlap with fixed elements */
     #video-grid {
-      /* Calculate space needed for header (approx 44px) + controls (approx 60px) + chat (variable) */
-      /* This is tricky. Let's make the chat take most of the bottom screen */
-      padding-top: 60px; /* Ensure video grid doesn't go under header */
-      padding-bottom: 350px; /* Give room for the chat window on small screens */
+      /* Adjust padding to account for fixed header and fixed controls + fixed chat */
+      padding-top: 70px; /* Roughly header height + margin */
+      padding-bottom: 350px; /* Combined height of chat + controls + some buffer */
     }
 
     #chat-container {
       position: fixed;
       left: 16px;
       right: 16px;
-      /* Top should be relative to the header, and bottom relative to controls */
-      /* Let's calculate height based on available space between header and controls */
-      top: 70px; /* Roughly below the header. Adjust as needed. */
-      bottom: 80px; /* Above the controls. Adjust as needed. */
+      top: 70px; /* Adjust this based on your actual header height */
+      bottom: 80px; /* Adjust this based on your actual controls height */
       width: auto; /* Let left/right define width */
       height: auto; /* Let top/bottom define height dynamically */
       max-height: calc(100vh - 150px); /* A fallback max height */
@@ -275,34 +277,34 @@
       border-top-right-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       z-index: 999;
-      padding: 15px; /* Increased padding */
+      padding: 15px;
     }
 
     /* Adjust font sizes and padding within chat container for mobile */
     .chat-message {
-      font-size: 16px; /* Larger font size for messages */
-      padding: 10px 15px; /* More padding for messages */
+      font-size: 16px;
+      padding: 10px 15px;
     }
 
     #chat-input {
-      font-size: 18px; /* Larger input font */
-      padding: 12px; /* More padding for input */
+      font-size: 18px;
+      padding: 12px;
       border-radius: 12px 0 0 12px;
     }
 
     #chat-form button {
-      font-size: 18px; /* Larger send button font */
-      padding: 12px 20px; /* More padding for send button */
+      font-size: 18px;
+      padding: 12px 20px;
       border-radius: 0 12px 12px 0;
     }
 
-    #chat-form button i.fas { /* Target Font Awesome icon in send button */
+    #chat-form button i.fas {
         font-size: 18px;
     }
 
     .reaction-btn {
-      font-size: 16px; /* Larger reaction button font */
-      padding: 8px 14px; /* More padding for reaction buttons */
+      font-size: 16px;
+      padding: 8px 14px;
       border-radius: 10px;
     }
 
@@ -317,22 +319,19 @@
     }
 
     #controls button {
-      font-size: 18px; /* Control buttons font size */
-      padding: 12px 18px; /* Control buttons padding */
+      font-size: 18px;
+      padding: 12px 18px;
     }
 
-    #controls button i.fas { /* Target Font Awesome icons within controls */
-        font-size: 18px; /* Ensure Font Awesome icons are larger */
+    #controls button i.fas {
+        font-size: 18px;
     }
 
-    /* Hide the room ID and user list on small screens if they take too much space */
     header h3, header ul {
         font-size: 14px;
-        /* Consider display: none; or making them less prominent */
     }
   }
 </style>
-
 </head>
 <body>
   <div id="waiting-room" style="display:none; text-align: center; padding: 50px;">
