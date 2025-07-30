@@ -98,9 +98,7 @@ peer.on('open', id => {
     });
 
     socket.on('join-request', ({ userId, userName }) => {
-        if (isHost) { // Only host should see join requests
             showJoinRequestPopup(userId, userName);
-        }
     });
 
     // This event should only send *other* existing users, not the joining user themselves
