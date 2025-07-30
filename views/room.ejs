@@ -6,8 +6,8 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-  /* ... (your existing general styles up to #chat-container) ... */
-body {
+  /* Base Styles (apply to all screen sizes unless overridden by media queries) */
+  body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
@@ -52,6 +52,8 @@ body {
     padding: 12px;
     gap: 12px;
     overflow-y: auto;
+    /* Add padding-bottom here for larger screens too if chat is fixed */
+    padding-bottom: 100px; /* Adjust if your controls are larger/smaller */
   }
 
   video {
@@ -76,8 +78,6 @@ body {
     border-top-right-radius: 6px;
   }
 
-
-  /* Base styles for chat-container (for larger screens and default fixed behavior) */
   #chat-container {
     display: flex;
     flex-direction: column;
@@ -85,12 +85,11 @@ body {
     border-left: 1px solid #444;
     padding: 10px;
     backdrop-filter: blur(8px);
-
-    position: fixed;
+    position: fixed; /* Keep it fixed for all screens by default */
     bottom: 16px;
     right: 16px;
-    width: 300px; /* Example width for desktop */
-    height: 400px; /* Example height for desktop */
+    width: 300px; /* Desktop width */
+    height: 400px; /* Desktop height */
     z-index: 50;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -111,7 +110,7 @@ body {
     border-radius: 8px;
     max-width: 80%;
     word-wrap: break-word;
-    font-size: 14px; /* Base font size */
+    font-size: 14px;
   }
 
   .chat-message.me {
@@ -131,7 +130,7 @@ body {
     border-radius: 10px 0 0 10px;
     background-color: #2f3136;
     color: white;
-    font-size: 16px; /* Base font size for input */
+    font-size: 16px;
   }
 
   #chat-form button {
@@ -142,7 +141,7 @@ body {
     color: white;
     cursor: pointer;
     transition: background 0.3s ease;
-    font-size: 16px; /* Base font size for send button */
+    font-size: 16px;
   }
 
   #chat-form button:hover {
@@ -163,7 +162,7 @@ body {
     background-color: #40444b;
     color: white;
     cursor: pointer;
-    font-size: 14px; /* Base font size for reaction buttons */
+    font-size: 14px;
     transition: background 0.2s ease;
   }
 
@@ -188,7 +187,7 @@ body {
 
   #controls button {
     padding: 10px 16px;
-    font-size: 16px; /* Base font size for control buttons */
+    font-size: 16px; /* Base Font Awesome icon size for controls */
     border-radius: 10px;
     border: none;
     background-color: #7289da;
@@ -199,6 +198,11 @@ body {
 
   #controls button:hover {
     background-color: #5b6eae;
+  }
+
+  /* Explicitly target Font Awesome icons within controls */
+  #controls button i.fas {
+    font-size: 16px; /* Ensure FA icons have a base size */
   }
 
   .modal-overlay {
@@ -240,36 +244,38 @@ body {
     border-radius: 3px;
   }
 
-  /* Corrected Media Query for Mobile */
+  /* --- Mobile Specific Styles --- */
   @media screen and (max-width: 768px) {
     #main {
       flex-direction: column;
-      /* On mobile, if chat-container is fixed, video-grid might need more space */
-      /* You might consider making video-grid fill more space or hide chat on small screens
-         and have a toggle. For now, let's just adjust positioning. */
+      /* No flex: 1; here as chat container is fixed */
     }
 
+    /* Adjust padding for video grid to prevent overlap with fixed elements */
     #video-grid {
-      padding-bottom: 320px; /* Add padding to make space for the chat container */
-      /* This is an estimate: Height of chat-container (300px) + bottom control bar (approx 60-70px) */
+      /* Calculate space needed for header (approx 44px) + controls (approx 60px) + chat (variable) */
+      /* This is tricky. Let's make the chat take most of the bottom screen */
+      padding-top: 60px; /* Ensure video grid doesn't go under header */
+      padding-bottom: 350px; /* Give room for the chat window on small screens */
     }
-
 
     #chat-container {
       position: fixed;
-      left: 16px; /* Position from left to ensure it's on the right side but with margin */
-      right: 16px; /* Position from right */
-      bottom: 80px; /* Adjust to be above the controls bar */
-      top: unset; /* Ensure it doesn't get pushed from top */
-      width: auto; /* Let it stretch horizontally based on left/right */
-      height: calc(80vh - 100px); /* Use viewport height for better scaling, adjust 100px as needed */
-      max-height: 500px; /* Prevent it from getting too tall on very large phones */
+      left: 16px;
+      right: 16px;
+      /* Top should be relative to the header, and bottom relative to controls */
+      /* Let's calculate height based on available space between header and controls */
+      top: 70px; /* Roughly below the header. Adjust as needed. */
+      bottom: 80px; /* Above the controls. Adjust as needed. */
+      width: auto; /* Let left/right define width */
+      height: auto; /* Let top/bottom define height dynamically */
+      max-height: calc(100vh - 150px); /* A fallback max height */
       border-left: none;
       border-top-left-radius: 12px;
       border-top-right-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       z-index: 999;
-      padding: 15px; /* Increase padding for better touch targets */
+      padding: 15px; /* Increased padding */
     }
 
     /* Adjust font sizes and padding within chat container for mobile */
@@ -281,13 +287,17 @@ body {
     #chat-input {
       font-size: 18px; /* Larger input font */
       padding: 12px; /* More padding for input */
-      border-radius: 12px 0 0 12px; /* Slightly larger border radius */
+      border-radius: 12px 0 0 12px;
     }
 
     #chat-form button {
       font-size: 18px; /* Larger send button font */
       padding: 12px 20px; /* More padding for send button */
       border-radius: 0 12px 12px 0;
+    }
+
+    #chat-form button i.fas { /* Target Font Awesome icon in send button */
+        font-size: 18px;
     }
 
     .reaction-btn {
@@ -298,17 +308,27 @@ body {
 
     #controls {
       flex-wrap: wrap;
-      bottom: 15px; /* Keep controls at the very bottom */
+      bottom: 15px;
       left: 50%;
       transform: translateX(-50%);
-      width: calc(100% - 32px); /* Stretch controls across bottom with padding */
-      padding: 12px 15px; /* Slightly more padding for controls */
-      gap: 10px; /* Adjust gap between buttons */
+      width: calc(100% - 32px);
+      padding: 12px 15px;
+      gap: 10px;
     }
 
     #controls button {
-      font-size: 18px; /* Larger icons/text in control buttons */
-      padding: 12px 18px; /* More padding for control buttons */
+      font-size: 18px; /* Control buttons font size */
+      padding: 12px 18px; /* Control buttons padding */
+    }
+
+    #controls button i.fas { /* Target Font Awesome icons within controls */
+        font-size: 18px; /* Ensure Font Awesome icons are larger */
+    }
+
+    /* Hide the room ID and user list on small screens if they take too much space */
+    header h3, header ul {
+        font-size: 14px;
+        /* Consider display: none; or making them less prominent */
     }
   }
 </style>
