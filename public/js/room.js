@@ -353,6 +353,7 @@ function showJoinRequestPopup(userId, userName) {
     modal.remove();
   };
   modal.querySelector('#deny-btn').onclick = () => {
+    console.log("deny clicked");
     socket.emit('deny-user', { roomId: ROOM_ID, userId });
     modal.remove();
   };
