@@ -7,6 +7,75 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   /* ... (your existing general styles up to #chat-container) ... */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    background-size: 400% 400%;
+    animation: bgShift 20s ease infinite;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  @keyframes bgShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  header {
+    padding: 12px 20px;
+    background-color: rgba(44, 47, 51, 0.8);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+
+  #main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  #video-grid {
+    flex: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    padding: 12px;
+    gap: 12px;
+    overflow-y: auto;
+  }
+
+  video {
+    width: 250px;
+    border-radius: 12px;
+    background: black;
+  }
+
+  .video-container {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .name-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 8px;
+    font-size: 12px;
+    border-top-right-radius: 6px;
+  }
+
 
   /* Base styles for chat-container (for larger screens and default fixed behavior) */
   #chat-container {
