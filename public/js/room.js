@@ -123,6 +123,7 @@ peer.on('open', id => {
     appendMessage(`🎉 ${userName} reacted with ${reaction}`);
   });
   socket.on('join-denied', ({ message }) => {
+    console.log("You are denied");
   alert(message || 'You were denied entry by the host.');
   window.location.href = '/dashboard'; // or show a proper message/page
 });
