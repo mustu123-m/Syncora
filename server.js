@@ -69,6 +69,9 @@ const peerServer = ExpressPeerServer(server, {
   proxied: true // Added for Render.com
 });
 app.use('/peerjs', peerServer);
+app.get('/',async (req,resp)=>{
+  resp.redirect("/dasgboard");
+})
 app.get("/dashboard", async (req, res) => {
   const user = await User.findById(req.session.userId);
   res.render('dashboard', { user });
