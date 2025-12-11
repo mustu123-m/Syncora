@@ -70,7 +70,7 @@ const peerServer = ExpressPeerServer(server, {
 });
 app.use('/peerjs', peerServer);
 app.get('/',async (req,resp)=>{
-  resp.redirect("/dasgboard");
+  resp.redirect("/dashboard");
 })
 app.get("/dashboard", async (req, res) => {
   const user = await User.findById(req.session.userId);
