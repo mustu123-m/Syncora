@@ -61,6 +61,10 @@ const [hasjoined,setHasJoined]=useState(false);
 
     pc.onconnectionstatechange = () => {
       console.log("connection state:", pc.connectionState)
+      if (pc.connectionState === "failed") {
+    console.log("connection failed, restarting ICE...")
+    pc.restartIce()
+  }
     }
 
     pc.onicegatheringstatechange = () => {
@@ -133,6 +137,19 @@ const [hasjoined,setHasJoined]=useState(false);
       }
     })
 
+    socket.current.on("user-left", () => {
+  console.log("other person left")
+
+  // clear their video
+  if (remoteVideoRef.current) {
+    remoteVideoRef.current.srcObject = null
+  }
+
+  // close peer connection
+  peerConnection.current?.close()
+  peerConnection.current = null
+})
+
      // step 2 — ask for camera AFTER joining
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -166,6 +183,23 @@ function toggleCamera() {
 
   setIsCameraOff(prev => !prev)  // update UI state
 }
+function leaveRoom() {
+  // stop all camera and mic tracks
+  localStream.current?.getTracks().forEach(track => {
+    track.stop()  // this turns off the camera light too
+  })
 
-  return { localVideoRef, remoteVideoRef, localStream, joinRoom,isCameraOff,isMuted,toggleCamera,toggleMute,hasjoined };
+  // close the peer connection
+  peerConnection.current?.close()
+  peerConnection.current = null
+
+  // tell server we left
+  socket.current?.emit("leave-room", roomId)
+
+  // clear local video
+  if (localVideoRef.current) {
+    localVideoRef.current.srcObject = null
+  }
+}
+  return { localVideoRef, remoteVideoRef, localStream, joinRoom,isCameraOff,isMuted,toggleCamera,toggleMute,hasjoined,leaveRoom };
 }

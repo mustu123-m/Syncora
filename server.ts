@@ -51,11 +51,21 @@ app.prepare().then(() => {
 
       console.log(`${socket.id} joined room: ${roomId}`)
     })
+socket.on("leave-room", (roomId: string) => {
+  socket.to(roomId).emit("user-left")
+  socket.leave(roomId)
+  console.log(`${socket.id} left room: ${roomId}`)
+})
 
-    // This fires when the user closes the tab or loses connection
-    socket.on("disconnect", () => {
-      console.log("someone disconnected:", socket.id)
-    })
+// also handle when browser closes without clicking leave
+socket.on("disconnect", () => {
+  console.log("someone disconnected:", socket.id)
+  // notify all rooms this socket was in
+  socket.rooms.forEach(roomId => {
+    socket.to(roomId).emit("user-left")
+  })
+})
+    
 
     socket.on("offer", (data) => {
       console.log("Sending Offer");

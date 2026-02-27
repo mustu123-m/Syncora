@@ -9,13 +9,15 @@ interface ControlsProps {
   isCameraOff: boolean
   onToggleMute: () => void
   onToggleCamera: () => void
+  onLeave:()=>void
 }
 
-export function Controls({ isMuted, isCameraOff, onToggleMute, onToggleCamera }: ControlsProps) {
+export function Controls({ isMuted, isCameraOff, onToggleMute, onToggleCamera,onLeave }: ControlsProps) {
   const router = useRouter()
 
   function leaveCall() {
     // go back to home page
+    onLeave();
     router.push("/")
   }
 

@@ -15,7 +15,7 @@ export default function RoomPage({ params }: { params:  Promise<{ roomId: string
   const name = searchParams.get("name") || "Anonymous"
   const { roomId } = use(params)
   const { socket, isConnected } = useSocket()
-  const { localVideoRef, remoteVideoRef, joinRoom ,isCameraOff,isMuted,toggleCamera,toggleMute,hasjoined} = useWebRTC(socket, roomId)
+  const { localVideoRef, remoteVideoRef, joinRoom ,isCameraOff,isMuted,toggleCamera,toggleMute,hasjoined,leaveRoom} = useWebRTC(socket, roomId)
 
   return (
     <main className="flex flex-col min-h-screen bg-zinc-950 text-white">
@@ -74,6 +74,7 @@ export default function RoomPage({ params }: { params:  Promise<{ roomId: string
         isCameraOff={isCameraOff}
         onToggleMute={toggleMute}
         onToggleCamera={toggleCamera}
+        onLeave={leaveRoom}
       />
 
     </main>
