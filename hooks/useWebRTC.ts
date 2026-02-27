@@ -46,7 +46,9 @@ const [hasjoined,setHasJoined]=useState(false);
         socket.current?.emit("ice-candidate", { candidate: event.candidate, roomId })
       }
     }
-
+    pc.onicecandidateerror = (event) => {
+  console.log("ICE candidate error:", event.errorCode, event.errorText, event.url)
+}
     pc.ontrack = (event) => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0]
