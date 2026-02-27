@@ -59,13 +59,28 @@ const [hasjoined,setHasJoined]=useState(false);
       }
     }
 
+    const connectionTimeout = setTimeout(() => {
+      if (pc.connectionState !== "connected") {
+        console.log("connection taking too long, restarting ICE...")
+        pc.restartIce()
+      }
+    }, 5000)
+
     pc.onconnectionstatechange = () => {
       console.log("connection state:", pc.connectionState)
+
+      if (pc.connectionState === "connected") {
+        // clear the timeout — we connected successfully
+        clearTimeout(connectionTimeout)
+      }
+
       if (pc.connectionState === "failed") {
-    console.log("connection failed, restarting ICE...")
-    pc.restartIce()
-  }
+        console.log("connection failed, restarting ICE...")
+        pc.restartIce()
+      }
     }
+
+    // rest
 
     pc.onicegatheringstatechange = () => {
       console.log("ice gathering state:", pc.iceGatheringState)
