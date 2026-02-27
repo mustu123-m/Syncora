@@ -148,7 +148,7 @@ export function useWebRTC(
     // this fires right after we join
     socket.current.on("room-joined", async ({ existingParticipants, hostId }) => {
       console.log("room joined, existing participants:", existingParticipants)
-
+  
       setHasJoined(true)
       setIsWaiting(false)
       setIsHost(socket.current?.id === hostId)
@@ -313,6 +313,7 @@ export function useWebRTC(
   // HOST admits someone from waiting list
   function admitParticipant(socketId: string) {
     socket.current?.emit("approve-participant", { socketId, roomId })
+    console.log("Admitting Participant");
     setWaitingList(prev => prev.filter(p => p.socketId !== socketId))
   }
 

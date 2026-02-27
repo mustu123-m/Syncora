@@ -84,8 +84,10 @@ app.prepare().then(() => {
     // data = { socketId, roomId }
     socket.on("approve-participant", ({ socketId, roomId }) => {
       const room = rooms.get(roomId)
-      if (!room) return
-
+      console.log("Approving Participant")
+      if (!room) return;
+      console.log("approving>>>");
+      
       const name = room.waiting.get(socketId)
       if (!name) return
 
@@ -94,6 +96,7 @@ app.prepare().then(() => {
 
       // get the guest's socket and admit them
       const guestSocket = io.sockets.sockets.get(socketId)
+      console.log(guestSocket);
       if (guestSocket) {
         admitParticipant(guestSocket, roomId, name, room)
       }
@@ -174,6 +177,7 @@ app.prepare().then(() => {
   room.participants as Map<string, string>
 ).filter(([id]) => id !== socket.id)
  .map(([id, name]) => ({ socketId: id, name }))
+ console.log("Emitting room-joined");
 
     socket.emit("room-joined", {
       existingParticipants,
