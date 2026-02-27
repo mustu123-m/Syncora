@@ -271,9 +271,10 @@ export function useWebRTC(
 
     setIsHost(true)
     setHasJoined(true)
+    roomId=newRoomId;
 
     socket.current.emit("create-room", {
-      roomId: newRoomId,
+      roomId,
       name,
       isRestricted
     })
