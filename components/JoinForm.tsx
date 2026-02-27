@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
-export function JoinForm() {
+export default function JoinForm() {
   const [name, setName] = useState("")
   const [roomId, setRoomId] = useState("")
   const [isRestricted, setIsRestricted] = useState(false)
