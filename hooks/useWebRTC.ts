@@ -18,28 +18,32 @@ const [hasjoined,setHasJoined]=useState(false);
 
   function createPeerConnection() {
         const pc = new RTCPeerConnection({
-      iceServers: [
-        // STUN server — find public IP
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-        // TURN servers — relay fallback
-        {
-          urls: "turn:openrelay.metered.ca:80",
-          username: "openrelayproject",
-          credential: "openrelayproject"
-        },
-        {
-          urls: "turn:openrelay.metered.ca:443",
-          username: "openrelayproject",
-          credential: "openrelayproject"
-        },
-        {
-          urls: "turn:openrelay.metered.ca:443?transport=tcp",
-          username: "openrelayproject",
-          credential: "openrelayproject"
-        }
-      ]
-    })
+  iceServers: [
+      {
+        urls: "stun:stun.relay.metered.ca:80",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80",
+        username: "edda0e2e776bdcd0dd7636a2",
+        credential: "ATHSm/VP4WkWPnOW",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:80?transport=tcp",
+        username: "edda0e2e776bdcd0dd7636a2",
+        credential: "ATHSm/VP4WkWPnOW",
+      },
+      {
+        urls: "turn:global.relay.metered.ca:443",
+        username: "edda0e2e776bdcd0dd7636a2",
+        credential: "ATHSm/VP4WkWPnOW",
+      },
+      {
+        urls: "turns:global.relay.metered.ca:443?transport=tcp",
+        username: "edda0e2e776bdcd0dd7636a2",
+        credential: "ATHSm/VP4WkWPnOW",
+      },
+  ],
+});
 
     pc.onicecandidate = (event) => {
       if (event.candidate) {
