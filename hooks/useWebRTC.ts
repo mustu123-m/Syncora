@@ -1,173 +1,135 @@
 import { useRef, useState } from "react"
 import { Socket } from "socket.io-client"
 
+// what we know about each participant
+interface Participant {
+  socketId: string
+  name: string
+}
+
 export function useWebRTC(
   socket: React.MutableRefObject<Socket | null>,
   roomId: string,
 ) {
+  // OUR camera stream
   const localStream = useRef<MediaStream | null>(null)
-  const peerConnection = useRef<RTCPeerConnection | null>(null)
+
+  // one peer connection per person, keyed by their socket ID
+  const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map())
+
+  // our own video element
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
-  const pendingCandidates = useRef<RTCIceCandidateInit[]>([])
 
-  // add these after your existing refs
-const [isMuted, setIsMuted] = useState(false)
-const [isCameraOff, setIsCameraOff] = useState(false)
-const [hasjoined,setHasJoined]=useState(false);
+  // remote streams — one per participant
+  // this is STATE not a ref because changing it should update the UI
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, {
+    stream: MediaStream
+    name: string
+  }>>(new Map())
 
-  function createPeerConnection() {
-        const pc = new RTCPeerConnection({
-  iceServers: [
-      {
-        urls: "stun:stun.relay.metered.ca:80",
-      },
-      {
-        urls: "turn:global.relay.metered.ca:80",
-        username: "edda0e2e776bdcd0dd7636a2",
-        credential: "ATHSm/VP4WkWPnOW",
-      },
-      {
-        urls: "turn:global.relay.metered.ca:80?transport=tcp",
-        username: "edda0e2e776bdcd0dd7636a2",
-        credential: "ATHSm/VP4WkWPnOW",
-      },
-      {
-        urls: "turn:global.relay.metered.ca:443",
-        username: "edda0e2e776bdcd0dd7636a2",
-        credential: "ATHSm/VP4WkWPnOW",
-      },
-      {
-        urls: "turns:global.relay.metered.ca:443?transport=tcp",
-        username: "edda0e2e776bdcd0dd7636a2",
-        credential: "ATHSm/VP4WkWPnOW",
-      },
-  ],
-});
+  // track who is in the room
+  const [participants, setParticipants] = useState<Participant[]>([])
 
+  // are we the host?
+  const [isHost, setIsHost] = useState(false)
+
+  // have we joined yet?
+  const [hasJoined, setHasJoined] = useState(false)
+
+  // waiting for host approval?
+  const [isWaiting, setIsWaiting] = useState(false)
+
+  // were we denied?
+  const [isDenied, setIsDenied] = useState(false)
+
+  // people waiting to join (only host sees this)
+  const [waitingList, setWaitingList] = useState<Participant[]>([])
+
+  // our own name — stored so we can use it in events
+  const myName = useRef<string>("")
+
+  // TURN server config — same as before
+  const iceConfig = {
+    iceServers: [
+      { urls: "stun:stun.metered.ca:80" },
+      {
+        urls: "turn:standard.relay.metered.ca:80",
+        username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+        credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+        username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+        credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL
+      },
+      {
+        urls: "turn:standard.relay.metered.ca:443",
+        username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+        credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL
+      },
+      {
+        urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+        username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+        credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL
+      }
+    ]
+  }
+
+  // creates a peer connection for a specific person
+  // targetId = their socket ID
+  // targetName = their display name
+  function createPeerConnection(targetId: string, targetName: string) {
+    const pc = new RTCPeerConnection(iceConfig)
+
+    // when we find an ICE candidate, send it directly to that person
     pc.onicecandidate = (event) => {
       if (event.candidate) {
-        socket.current?.emit("ice-candidate", { candidate: event.candidate, roomId })
-      }
-    }
-    pc.onicecandidateerror = (event) => {
-  console.log("ICE candidate error:", event.errorCode, event.errorText, event.url)
-}
-    pc.ontrack = (event) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0]
+        socket.current?.emit("ice-candidate", {
+          candidate: event.candidate,
+          targetId  // send directly to this person
+        })
       }
     }
 
-    const connectionTimeout = setTimeout(() => {
-      if (pc.connectionState !== "connected") {
-        console.log("connection taking too long, restarting ICE...")
-        pc.restartIce()
-      }
-    }, 5000)
+    // when their video arrives, add it to our remoteStreams map
+    pc.ontrack = (event) => {
+      console.log("ontrack fired from:", targetName)
+      setRemoteStreams(prev => {
+        const updated = new Map(prev)
+        updated.set(targetId, {
+          stream: event.streams[0],
+          name: targetName
+        })
+        return updated
+      })
+    }
 
     pc.onconnectionstatechange = () => {
-      console.log("connection state:", pc.connectionState)
-
-      if (pc.connectionState === "connected") {
-        // clear the timeout — we connected successfully
-        clearTimeout(connectionTimeout)
-      }
-
+      console.log(`connection with ${targetName}:`, pc.connectionState)
       if (pc.connectionState === "failed") {
-        console.log("connection failed, restarting ICE...")
         pc.restartIce()
       }
     }
 
-    // rest
-
-    pc.onicegatheringstatechange = () => {
-      console.log("ice gathering state:", pc.iceGatheringState)
-    }
-
+    // store it in our map
+    peerConnections.current.set(targetId, pc)
     return pc
   }
 
-  async function applyPendingCandidates() {
-    for (const candidate of pendingCandidates.current) {
-      await peerConnection.current?.addIceCandidate(candidate)
-      console.log("applied pending candidate")
-    }
-    pendingCandidates.current = []
+  // adds our local tracks to a peer connection
+  function addLocalTracks(pc: RTCPeerConnection) {
+    localStream.current?.getTracks().forEach(track => {
+      pc.addTrack(track, localStream.current!)
+    })
   }
 
-  // this is the function the button calls
-  async function joinRoom() {
-    if (!socket.current) return
-  
-    // step 1 — tell server we're joining
-
-    socket.current.emit("join-room", roomId)
-    console.log("joined room:", roomId)
-
-   setHasJoined(true);
-    // step 3 — now set up all socket listeners
-    // we do this here so they're only registered after the user joins
-    socket.current.on("user-joined", async (userId: string) => {
-      console.log("user joined, creating offer")
-      peerConnection.current = createPeerConnection()
-      console.log("Created Peer connection");
-      console.log(peerConnection.current);
-      localStream.current?.getTracks().forEach(track => {
-        peerConnection.current?.addTrack(track, localStream.current!)
-      })
-      console.log("Emitting offer");
-      const offer = await peerConnection.current.createOffer()
-      await peerConnection.current.setLocalDescription(offer)
-      socket.current?.emit("offer", { offer, roomId })
-    })
-
-    socket.current.on("offer", async ({ offer }) => {
-      console.log("received offer, creating answer")
-      peerConnection.current = createPeerConnection()
-      localStream.current?.getTracks().forEach(track => {
-        peerConnection.current?.addTrack(track, localStream.current!)
-      })
-      await peerConnection.current.setRemoteDescription(offer)
-      await applyPendingCandidates()
-      const answer = await peerConnection.current.createAnswer()
-      await peerConnection.current.setLocalDescription(answer)
-      socket.current?.emit("answer", { answer, roomId })
-    })
-
-    socket.current.on("answer", async ({ answer }) => {
-      console.log("received answer")
-      await peerConnection.current?.setRemoteDescription(answer)
-      await applyPendingCandidates()
-    })
-
-    socket.current.on("ice-candidate", async ({ candidate }) => {
-      if (peerConnection.current?.remoteDescription) {
-        await peerConnection.current.addIceCandidate(candidate)
-        console.log("added ice candidate immediately")
-      } else {
-        pendingCandidates.current.push(candidate)
-        console.log("queued ice candidate, total:", pendingCandidates.current.length)
-      }
-    })
-
-    socket.current.on("user-left", () => {
-  console.log("other person left")
-
-  // clear their video
-  if (remoteVideoRef.current) {
-    remoteVideoRef.current.srcObject = null
-  }
-
-  // close peer connection
-  peerConnection.current?.close()
-  peerConnection.current = null
-})
-
-     // step 2 — ask for camera AFTER joining
+  // gets camera and mic
+  async function setupLocalStream() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      })
       localStream.current = stream
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream
@@ -175,46 +137,242 @@ const [hasjoined,setHasJoined]=useState(false);
     } catch (err) {
       console.warn("camera not available:", err)
     }
-
   }
+
+  // sets up all socket listeners
+  // called after joining so we don't miss any events
+  function setupSocketListeners() {
+    if (!socket.current) return
+
+    // server tells us who is already in the room
+    // this fires right after we join
+    socket.current.on("room-joined", async ({ existingParticipants, hostId }) => {
+      console.log("room joined, existing participants:", existingParticipants)
+
+      setHasJoined(true)
+      setIsWaiting(false)
+      setIsHost(socket.current?.id === hostId)
+      setParticipants(existingParticipants)
+
+      // create a peer connection with EACH existing participant
+      // WE are the ones joining so WE send the offer to each person
+      for (const participant of existingParticipants) {
+        const pc = createPeerConnection(participant.socketId, participant.name)
+        addLocalTracks(pc)
+
+        const offer = await pc.createOffer()
+        await pc.setLocalDescription(offer)
+
+        socket.current?.emit("offer", {
+          offer,
+          targetId: participant.socketId,  // send to this specific person
+          roomId
+        })
+      }
+    })
+
+    // a new person joined the room
+    // THEY will send us an offer, we just update our participant list
+    socket.current.on("participant-joined", ({ socketId, name }) => {
+      console.log("participant joined:", name)
+      setParticipants(prev => [...prev, { socketId, name }])
+    })
+
+    // we received an offer from someone
+    // create a peer connection with them and send back an answer
+    socket.current.on("offer", async ({ offer, fromId }) => {
+      // find this person's name from our participants list
+      // we need it to label their video
+      const participant = participants.find(p => p.socketId === fromId)
+      const name = participant?.name || "Unknown"
+
+      console.log("received offer from:", name)
+
+      const pc = createPeerConnection(fromId, name)
+      addLocalTracks(pc)
+
+      await pc.setRemoteDescription(offer)
+      const answer = await pc.createAnswer()
+      await pc.setLocalDescription(answer)
+
+      socket.current?.emit("answer", {
+        answer,
+        targetId: fromId  // send answer back to the person who offered
+      })
+    })
+
+    // we received an answer to our offer
+    socket.current.on("answer", async ({ answer, fromId }) => {
+      console.log("received answer from:", fromId)
+      const pc = peerConnections.current.get(fromId)
+      await pc?.setRemoteDescription(answer)
+    })
+
+    // we received an ICE candidate from someone
+    socket.current.on("ice-candidate", async ({ candidate, fromId }) => {
+      const pc = peerConnections.current.get(fromId)
+      if (pc?.remoteDescription) {
+        await pc.addIceCandidate(candidate)
+      } else {
+        // queue it — same race condition fix as before
+        // but now per peer connection
+        console.log("received ICE candidate before remote description from:", fromId)
+      }
+    })
+
+    // someone left
+    socket.current.on("participant-left", ({ socketId }) => {
+      console.log("participant left:", socketId)
+
+      // close their peer connection
+      peerConnections.current.get(socketId)?.close()
+      peerConnections.current.delete(socketId)
+
+      // remove their video
+      setRemoteStreams(prev => {
+        const updated = new Map(prev)
+        updated.delete(socketId)
+        return updated
+      })
+
+      // remove from participants list
+      setParticipants(prev => prev.filter(p => p.socketId !== socketId))
+    })
+
+    // host ended the meeting
+    socket.current.on("meeting-ended", () => {
+      console.log("meeting ended by host")
+      cleanup()
+    })
+
+    // we were denied entry
+    socket.current.on("join-denied", () => {
+      setIsWaiting(false)
+      setIsDenied(true)
+    })
+
+    // HOST ONLY — someone wants to join
+    socket.current.on("join-request", ({ socketId, name }) => {
+      setWaitingList(prev => [...prev, { socketId, name }])
+    })
+  }
+
+  // HOST creates a room
+  async function createRoom(name: string, isRestricted: boolean) {
+    if (!socket.current) return
+
+    myName.current = name
+
+    // generate a random room ID
+    const newRoomId = Math.random().toString(36).substring(2, 8).toUpperCase()
+
+    await setupLocalStream()
+    setupSocketListeners()
+
+    setIsHost(true)
+    setHasJoined(true)
+
+    socket.current.emit("create-room", {
+      roomId: newRoomId,
+      name,
+      isRestricted
+    })
+
+    // server confirms room created
+    socket.current.on("room-created", ({ roomId }) => {
+      console.log("room created:", roomId)
+    })
+
+    return newRoomId
+  }
+
+  // GUEST joins an existing room
+  async function joinRoom(name: string) {
+    if (!socket.current) return
+
+    myName.current = name
+
+    await setupLocalStream()
+    setupSocketListeners()
+
+    socket.current.emit("join-room", { roomId, name })
+
+    // if restricted room, we'll get "waiting-for-approval"
+    socket.current.on("waiting-for-approval", () => {
+      setIsWaiting(true)
+      console.log("waiting for host approval")
+    })
+
+    // if room not found
+    socket.current.on("room-not-found", () => {
+      console.log("room not found")
+      alert("Room not found. Check the room ID and try again.")
+    })
+  }
+
+  // HOST admits someone from waiting list
+  function admitParticipant(socketId: string) {
+    socket.current?.emit("approve-participant", { socketId, roomId })
+    setWaitingList(prev => prev.filter(p => p.socketId !== socketId))
+  }
+
+  // HOST denies someone from waiting list
+  function denyParticipant(socketId: string) {
+    socket.current?.emit("deny-participant", { socketId, roomId })
+    setWaitingList(prev => prev.filter(p => p.socketId !== socketId))
+  }
+
+  // mute toggle — same as before
+  const [isMuted, setIsMuted] = useState(false)
   function toggleMute() {
-  if (!localStream.current) return
-
-  // getAudioTracks() returns only the audio track
-  localStream.current.getAudioTracks().forEach(track => {
-    track.enabled = !track.enabled  // flip it
-  })
-
-  setIsMuted(prev => !prev)  // update UI state
-}
-
-function toggleCamera() {
-  if (!localStream.current) return
-
-  // getVideoTracks() returns only the video track
-  localStream.current.getVideoTracks().forEach(track => {
-    track.enabled = !track.enabled  // flip it
-  })
-
-  setIsCameraOff(prev => !prev)  // update UI state
-}
-function leaveRoom() {
-  // stop all camera and mic tracks
-  localStream.current?.getTracks().forEach(track => {
-    track.stop()  // this turns off the camera light too
-  })
-
-  // close the peer connection
-  peerConnection.current?.close()
-  peerConnection.current = null
-
-  // tell server we left
-  socket.current?.emit("leave-room", roomId)
-
-  // clear local video
-  if (localVideoRef.current) {
-    localVideoRef.current.srcObject = null
+    localStream.current?.getAudioTracks().forEach(track => {
+      track.enabled = !track.enabled
+    })
+    setIsMuted(prev => !prev)
   }
-}
-  return { localVideoRef, remoteVideoRef, localStream, joinRoom,isCameraOff,isMuted,toggleCamera,toggleMute,hasjoined,leaveRoom };
+
+  // camera toggle — same as before
+  const [isCameraOff, setIsCameraOff] = useState(false)
+  function toggleCamera() {
+    localStream.current?.getVideoTracks().forEach(track => {
+      track.enabled = !track.enabled
+    })
+    setIsCameraOff(prev => !prev)
+  }
+
+  // clean up everything
+  function cleanup() {
+    localStream.current?.getTracks().forEach(track => track.stop())
+    peerConnections.current.forEach(pc => pc.close())
+    peerConnections.current.clear()
+    setRemoteStreams(new Map())
+    setParticipants([])
+    setHasJoined(false)
+  }
+
+  // leave the room
+  function leaveRoom() {
+    socket.current?.emit("leave-room", roomId)
+    cleanup()
+  }
+
+  return {
+    localVideoRef,
+    remoteStreams,
+    participants,
+    isHost,
+    hasJoined,
+    isWaiting,
+    isDenied,
+    waitingList,
+    isMuted,
+    isCameraOff,
+    createRoom,
+    joinRoom,
+    leaveRoom,
+    admitParticipant,
+    denyParticipant,
+    toggleMute,
+    toggleCamera,
+  }
 }
