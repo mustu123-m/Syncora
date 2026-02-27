@@ -17,8 +17,28 @@ const [isCameraOff, setIsCameraOff] = useState(false)
 const [hasjoined,setHasJoined]=useState(false);
 
   function createPeerConnection() {
-    const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        const pc = new RTCPeerConnection({
+      iceServers: [
+        // STUN server — find public IP
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        // TURN servers — relay fallback
+        {
+          urls: "turn:openrelay.metered.ca:80",
+          username: "openrelayproject",
+          credential: "openrelayproject"
+        },
+        {
+          urls: "turn:openrelay.metered.ca:443",
+          username: "openrelayproject",
+          credential: "openrelayproject"
+        },
+        {
+          urls: "turn:openrelay.metered.ca:443?transport=tcp",
+          username: "openrelayproject",
+          credential: "openrelayproject"
+        }
+      ]
     })
 
     pc.onicecandidate = (event) => {
