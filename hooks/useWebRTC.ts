@@ -274,7 +274,7 @@ export function useWebRTC(
 
 
     socket.current.emit("create-room", {
-      newRoomId,
+      roomId:newRoomId,
       name,
       isRestricted
     })
