@@ -13,6 +13,14 @@ export function useWebRTC(
   const localStream = useRef<MediaStream | null>(null)
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map())
   const localVideoRef = useRef<HTMLVideoElement | null>(null)
+   
+  function setLocalVideoRef(element: HTMLVideoElement | null) {
+  localVideoRef.current = element
+  // if stream already exists when element mounts, set it immediately
+  if (element && localStream.current) {
+    element.srcObject = localStream.current
+  }
+}
 
   const [remoteStreams, setRemoteStreams] = useState<Map<string, {
     stream: MediaStream
@@ -36,7 +44,7 @@ export function useWebRTC(
   // FIX 3 — queue ICE candidates per person
   const pendingCandidates = useRef<Map<string, RTCIceCandidateInit[]>>(new Map())
 
-  const iceConfig = {
+   const iceConfig = {
     iceServers: [
       { urls: "stun:stun.metered.ca:80" },
       {
@@ -321,7 +329,7 @@ export function useWebRTC(
   }
 
   return {
-    localVideoRef,
+     setLocalVideoRef,
     remoteStreams,
     participants,
     isHost,

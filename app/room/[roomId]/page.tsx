@@ -17,7 +17,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
   const { socket, isConnected } = useSocket()
   const {
-    localVideoRef,
+    setLocalVideoRef,
     remoteStreams,
     participants,
     hasJoined,
@@ -191,7 +191,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         {/* your own camera — bottom right */}
         <div className="absolute bottom-8 right-8 w-40 h-28 bg-zinc-900 rounded-xl overflow-hidden border-2 border-zinc-700 shadow-xl">
           <video
-            ref={localVideoRef}
+            ref={setLocalVideoRef}
             autoPlay
             muted
             playsInline
