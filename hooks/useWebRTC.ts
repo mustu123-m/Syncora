@@ -271,10 +271,10 @@ export function useWebRTC(
 
     setIsHost(true)
     setHasJoined(true)
-    roomId=newRoomId;
+
 
     socket.current.emit("create-room", {
-      roomId,
+      newRoomId,
       name,
       isRestricted
     })
@@ -312,7 +312,7 @@ export function useWebRTC(
   }
 
   // HOST admits someone from waiting list
-  function admitParticipant(socketId: string) {
+  function admitParticipant(socketId: string,roomId :string) {
     console.log(socket.current);
     console.log("RoomId is");
     console.log(roomId);
@@ -322,7 +322,7 @@ export function useWebRTC(
   }
 
   // HOST denies someone from waiting list
-  function denyParticipant(socketId: string) {
+  function denyParticipant(socketId: string,roomId:string) {
     socket.current?.emit("deny-participant", { socketId, roomId })
     setWaitingList(prev => prev.filter(p => p.socketId !== socketId))
   }
@@ -356,7 +356,7 @@ export function useWebRTC(
   }
 
   // leave the room
-  function leaveRoom() {
+  function leaveRoom(roomId:string) {
     socket.current?.emit("leave-room", roomId)
     cleanup()
   }

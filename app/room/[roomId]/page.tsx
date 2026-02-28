@@ -139,14 +139,14 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
               <span className="text-white">{person.name}</span>
               <div className="flex gap-2">
                 <Button
-                  onClick={() => admitParticipant(person.socketId)}
+                  onClick={() => admitParticipant(person.socketId,actualRoomId)}
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Admit
                 </Button>
                 <Button
-                  onClick={() => denyParticipant(person.socketId)}
+                  onClick={() => denyParticipant(person.socketId,actualRoomId)}
                   size="sm"
                   variant="destructive"
                 >
@@ -213,7 +213,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         onToggleMute={toggleMute}
         onToggleCamera={toggleCamera}
         onLeave={() => {
-          leaveRoom()
+          leaveRoom(actualRoomId)
           router.push("/")
         }}
       />
