@@ -314,6 +314,8 @@ export function useWebRTC(
   // HOST admits someone from waiting list
   function admitParticipant(socketId: string) {
     console.log(socket.current);
+    console.log("RoomId is");
+    console.log(roomId);
     socket.current?.emit("approve-participant", { socketId, roomId })
     console.log("Admitting Participant");
     setWaitingList(prev => prev.filter(p => p.socketId !== socketId))

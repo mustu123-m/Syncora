@@ -84,10 +84,11 @@ app.prepare().then(() => {
     // data = { socketId, roomId }
     socket.on("approve-participant", ({ socketId, roomId }) => {
       const room = rooms.get(roomId)
-      console.log(roomId);
       console.log(rooms);
-      console.log("Approving Participant")
-      console.log(room);
+      console.log("RoomId is ::");
+      console.log(roomId);
+      console.log("Approving Participant");
+      console.log("ROOM IS:",room);
       if (!room) return;
       console.log("approving>>>");
       
