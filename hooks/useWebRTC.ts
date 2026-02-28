@@ -146,7 +146,7 @@ export function useWebRTC(
 
     // server tells us who is already in the room
     // this fires right after we join
-    socket.current.on("room-joined", async ({ existingParticipants, hostId }) => {
+    socket.current.on("room-joined", async ({ existingParticipants,rommId, hostId }) => {
       console.log("room joined, existing participants:", existingParticipants)
   
       setHasJoined(true)
