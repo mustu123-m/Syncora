@@ -4,15 +4,16 @@ import { use, useEffect, useRef, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useSocket } from "@/hooks/useSocket"
 import { useWebRTC } from "@/hooks/useWebRTC"
-import { Controls } from "@/components/Control"
+import { Controls } from "@/components/Controls"
 import { Button } from "@/components/ui/button"
+
 export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const { roomId } = use(params)
   const searchParams = useSearchParams()
   const router = useRouter()
 
   const name = searchParams.get("name") || "Anonymous"
-  const isHost = searchParams.get("host") === "true"
+  const isHostParam = searchParams.get("host") === "true"
   const isRestricted = searchParams.get("restricted") === "true"
 
   const { socket, isConnected } = useSocket()
@@ -35,35 +36,27 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     toggleCamera,
   } = useWebRTC(socket, roomId)
 
-  // actual room ID — for host this gets set after room is created
   const [actualRoomId, setActualRoomId] = useState(
     roomId === "new" ? "" : roomId
   )
 
-  // auto join once socket is connected
   useEffect(() => {
     if (!isConnected) return
-
-    if (isHost && roomId === "new") {
-      // host — create a new room
+    if (isHostParam && roomId === "new") {
       createRoom(name, isRestricted).then((newRoomId) => {
         if (newRoomId) setActualRoomId(newRoomId)
       })
     } else {
-      // guest — join existing room
       joinRoom(name)
     }
   }, [isConnected])
 
-  // if host ends meeting, go back home
   useEffect(() => {
-    if (!isHost && isDenied) return
     socket.current?.on("meeting-ended", () => {
       router.push("/")
     })
-  }, [socket, isHost])
+  }, [socket])
 
-  // convert remoteStreams map to array for rendering
   const remoteStreamList = Array.from(remoteStreams.entries()).map(
     ([socketId, { stream, name }]) => ({ socketId, stream, name })
   )
@@ -71,10 +64,10 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   // DENIED screen
   if (isDenied) {
     return (
-      <main className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 gap-4">
+      <main className="flex flex-col items-center justify-center h-screen bg-zinc-950 gap-4">
         <div className="text-6xl">🚫</div>
         <h1 className="text-2xl font-bold text-white">Request Denied</h1>
-        <p className="text-zinc-400">The host did not admit you to this meeting.</p>
+        <p className="text-zinc-400">The host did not admit you.</p>
         <Button onClick={() => router.push("/")} className="bg-blue-600 hover:bg-blue-700">
           Go Back Home
         </Button>
@@ -85,7 +78,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   // WAITING screen
   if (isWaiting) {
     return (
-      <main className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 gap-4">
+      <main className="flex flex-col items-center justify-center h-screen bg-zinc-950 gap-4">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
         <h1 className="text-2xl font-bold text-white">Waiting for Host</h1>
         <p className="text-zinc-400">The host will admit you shortly...</p>
@@ -100,15 +93,14 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     )
   }
 
-  // MAIN ROOM
   return (
-    <main className="flex flex-col min-h-screen bg-zinc-950 text-white">
+    // h-screen + overflow-hidden = nothing goes outside viewport
+    <main className="flex flex-col h-screen overflow-hidden bg-zinc-950 text-white">
 
-      {/* top bar */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+      {/* top bar — fixed height */}
+      <div className="flex items-center justify-between px-6 py-3 border-b border-zinc-800 flex-shrink-0">
         <h1 className="text-lg font-semibold">VideoApp</h1>
 
-        {/* show room ID so host can share it */}
         {actualRoomId && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-zinc-400">Room:</span>
@@ -130,23 +122,23 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         </div>
       </div>
 
-      {/* waiting list — only host sees this */}
-      {isHost && waitingList.length > 0 && (
-        <div className="flex flex-col gap-2 px-6 py-4 border-b border-zinc-800 bg-zinc-900">
+      {/* waiting list — only host sees, fixed height */}
+      {waitingList.length > 0 && (
+        <div className="flex flex-col gap-2 px-6 py-3 border-b border-zinc-800 bg-zinc-900 flex-shrink-0">
           <p className="text-sm font-medium text-zinc-300">Waiting to join:</p>
           {waitingList.map(person => (
             <div key={person.socketId} className="flex items-center justify-between">
-              <span className="text-white">{person.name}</span>
+              <span className="text-white text-sm">{person.name}</span>
               <div className="flex gap-2">
                 <Button
-                  onClick={() => admitParticipant(person.socketId,actualRoomId)}
+                  onClick={() => admitParticipant(person.socketId, actualRoomId)}
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Admit
                 </Button>
                 <Button
-                  onClick={() => denyParticipant(person.socketId,actualRoomId)}
+                  onClick={() => denyParticipant(person.socketId, actualRoomId)}
                   size="sm"
                   variant="destructive"
                 >
@@ -158,38 +150,39 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         </div>
       )}
 
-      {/* video area */}
-      <div className="flex-1 relative p-4 flex flex-col gap-4">
+      {/* video area — takes all remaining space */}
+      <div className="flex-1 overflow-hidden relative p-3 flex flex-col gap-2 min-h-0">
 
-        {/* spotlight — first remote stream or empty */}
-        <div className="w-full flex-1 bg-zinc-900 rounded-2xl overflow-hidden relative min-h-64">
+        {/* spotlight — fills available space */}
+        <div className="flex-1 min-h-0 bg-zinc-900 rounded-2xl overflow-hidden relative">
           {remoteStreamList.length > 0 ? (
-            <>
-              <RemoteVideo
-                stream={remoteStreamList[0].stream}
-                name={remoteStreamList[0].name}
-              />
-            </>
+            <RemoteVideo
+              stream={remoteStreamList[0].stream}
+              name={remoteStreamList[0].name}
+            />
           ) : (
-            <div className="flex items-center justify-center h-full text-zinc-500">
+            <div className="flex items-center justify-center h-full text-zinc-500 text-sm">
               {hasJoined ? "Waiting for others to join..." : "Connecting..."}
             </div>
           )}
         </div>
 
-        {/* other participants — shown below spotlight */}
+        {/* other participants strip — fixed height, only shows if more than 1 */}
         {remoteStreamList.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 h-24 flex-shrink-0 overflow-x-auto">
             {remoteStreamList.slice(1).map(({ socketId, stream, name }) => (
-              <div key={socketId} className="flex-shrink-0 w-40 h-28 bg-zinc-900 rounded-xl overflow-hidden relative">
+              <div
+                key={socketId}
+                className="flex-shrink-0 w-32 h-24 bg-zinc-900 rounded-xl overflow-hidden"
+              >
                 <RemoteVideo stream={stream} name={name} small />
               </div>
             ))}
           </div>
         )}
 
-        {/* your own camera — bottom right */}
-        <div className="absolute bottom-8 right-8 w-40 h-28 bg-zinc-900 rounded-xl overflow-hidden border-2 border-zinc-700 shadow-xl">
+        {/* your own camera — fixed size, bottom right corner */}
+        <div className="absolute bottom-4 right-4 w-32 h-24 bg-zinc-900 rounded-xl overflow-hidden border-2 border-zinc-700 shadow-xl z-10">
           <video
             ref={setLocalVideoRef}
             autoPlay
@@ -206,24 +199,24 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
       </div>
 
-      {/* controls */}
-      <Controls
-        isMuted={isMuted}
-        isCameraOff={isCameraOff}
-        onToggleMute={toggleMute}
-        onToggleCamera={toggleCamera}
-        onLeave={() => {
-          leaveRoom(actualRoomId)
-          router.push("/")
-        }}
-      />
+      {/* controls — fixed height at bottom */}
+      <div className="flex-shrink-0">
+        <Controls
+          isMuted={isMuted}
+          isCameraOff={isCameraOff}
+          onToggleMute={toggleMute}
+          onToggleCamera={toggleCamera}
+          onLeave={() => {
+            leaveRoom(actualRoomId)
+            router.push("/")
+          }}
+        />
+      </div>
 
     </main>
   )
 }
 
-// separate component for remote video
-// needed because we have to set srcObject via ref
 function RemoteVideo({ stream, name, small = false }: {
   stream: MediaStream
   name: string
