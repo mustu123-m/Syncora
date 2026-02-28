@@ -4,7 +4,7 @@ import { use, useEffect, useRef, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useSocket } from "@/hooks/useSocket"
 import { useWebRTC } from "@/hooks/useWebRTC"
-import { Controls } from "@/components/Controls"
+import { Controls } from "@/components/Control"
 import { Button } from "@/components/ui/button"
 
 export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
