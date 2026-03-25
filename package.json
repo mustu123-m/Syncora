@@ -6,7 +6,8 @@
     "dev": "ts-node --project tsconfig.server.json server.ts",
     "build": "next build",
     "start": "NODE_ENV=production ts-node --project tsconfig.server.json server.ts",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate" 
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
