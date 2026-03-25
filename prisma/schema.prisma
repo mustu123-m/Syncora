@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User table — stores all registered users
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // null for Google login users
+  createdAt     DateTime  @default(now())
+
+  // relations
+  accounts      Account[]
+  meetings      Meeting[]
+}
+
+// Account table — NextAuth needs this for OAuth providers
+// one user can have multiple accounts (google, github etc)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  // link back to user
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // same provider + account can only exist once
+  @@unique([provider, providerAccountId])
+}
+
+// Meeting table — saves meeting history
+model Meeting {
+  id        String   @id @default(cuid())
+  roomId    String
+  title     String?
+  hostId    String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+
+  // link back to user
+  host User @relation(fields: [hostId], references: [id], onDelete: Cascade)
+}

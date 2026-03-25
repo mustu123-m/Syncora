@@ -1,13 +1,14 @@
 "use client"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-
-export default function JoinForm() {
-  const [name, setName] = useState("")
+interface JoinFormProps {
+  defaultName: string
+}
+export default function JoinForm({ defaultName }: JoinFormProps) {
+  const [name, setName] = useState(defaultName);
   const [roomId, setRoomId] = useState("")
   const [isRestricted, setIsRestricted] = useState(false)
   // which mode are we in — create or join
