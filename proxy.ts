@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 export default async function middleware(req: NextRequest) {
   // getToken reads the JWT from the cookie — returns null if not logged in
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET,secureCookie: true});
 
   const isLoggedIn = !!token
 
