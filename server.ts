@@ -6,7 +6,7 @@ import { Server } from "socket.io"
 const dev = process.env.NODE_ENV !== "production"
 const app = next({ dev })
 const handle = app.getRequestHandler()
-
+const port = process.env.PORT || 3000
 app.prepare().then(() => {
   const httpServer = createServer((req, res) => {
     const parsedUrl = parse(req.url!, true)
@@ -227,7 +227,7 @@ app.prepare().then(() => {
     console.log(`${name} left room ${roomId}`)
   }
 
-  httpServer.listen(3000, () => {
+  httpServer.listen(port, () => {
     console.log("Server running on http://localhost:3000")
   })
 })
