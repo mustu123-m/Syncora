@@ -145,12 +145,16 @@ app.prepare()
     room.participants.set(socket.id, name)
 
     socket.join(roomId)
+const existingParticipants: { socketId: string; name: string }[] = []
 
-    const existingParticipants = Array.from(
-      room.participants
-    )
-      .filter(([id]) => id !== socket.id)
-      .map(([id, name]) => ({ socketId: id, name }))
+;(room.participants as Map<string, string>).forEach((name, id) => {
+  if (id !== socket.id) {
+    existingParticipants.push({
+      socketId: id,
+      name
+    })
+  }
+})
 
     socket.emit("room-joined", {
       existingParticipants,
