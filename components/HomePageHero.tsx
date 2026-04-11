@@ -1,6 +1,21 @@
 'use client'
 
+import { useRouter } from "next/navigation"
+
 export default function HomepageHero() {
+  const router = useRouter()
+
+  const handleStartMeeting = () => {
+    // Scroll to join form instead of directly creating a room
+    // This lets users set their name and choose restriction settings
+    document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  const handleHowItWorks = () => {
+    // Scroll to join form section
+    document.getElementById("join-form")?.scrollIntoView({ behavior: "smooth" })
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Animated background gradient */}
@@ -31,10 +46,16 @@ export default function HomepageHero() {
 
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
-          <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/50">
+          <button 
+            onClick={handleStartMeeting}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/50 cursor-pointer"
+          >
             Start Meeting
           </button>
-          <button className="px-8 py-4 border border-zinc-600 hover:border-zinc-400 text-zinc-300 hover:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-zinc-900/50">
+          <button 
+            onClick={handleHowItWorks}
+            className="px-8 py-4 border border-zinc-600 hover:border-zinc-400 text-zinc-300 hover:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-zinc-900/50 cursor-pointer"
+          >
             How It Works
           </button>
         </div>
