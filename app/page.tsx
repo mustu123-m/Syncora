@@ -14,8 +14,8 @@ export default async function Home() {
       <FeaturesSection />
       <HowItWorksSection />
       
-      {/* Join Form Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      {/* Join Form Section - WITH ID */}
+      <section id="join-form" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md mx-auto">
           <JoinForm defaultName={session?.user?.name || ""}/>
         </div>
